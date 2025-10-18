@@ -1,5 +1,5 @@
 [build]
-  command = "node -v && cd frontend && npm ci && npm run build"
+  command = "npm ci && npm run build"
   publish = "dist"
 
 [build.environment]
