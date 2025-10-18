@@ -8,6 +8,7 @@ import Customers from './pages/Customers'
 import Products from './pages/Products'
 import Login from './pages/Login'
 import ProtectedRoute from './components/ProtectedRoute'
+import './index.css'; // or whatever your CSS file is called
 
 function App() {
   return (
