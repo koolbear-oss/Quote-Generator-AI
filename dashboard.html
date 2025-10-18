@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - DAS Quote System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        .card-hover { transition: all 0.3s ease; }
+        .card-hover:hover { transform: translateY(-2px); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1); }
+        .fade-in { opacity: 0; transform: translateY(20px); }
+        .fade-in.visible { opacity: 1; transform: translateY(0); transition: all 0.6s ease; }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen">
+    <!-- Navigation Header -->
+    <nav class="bg-white shadow-sm border-b border-slate-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-8 h-8 bg-blue-800 rounded-lg flex items-center justify-center">
+                            <span class="text-white font-bold text-sm">DAS</span>
+                        </div>
+                        <span class="text-xl font-semibold text-slate-800">Quote System</span>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="index.html" class="px-4 py-2 text-sm font-medium text-white bg-blue-800 rounded-lg hover:bg-blue-900 transition-colors">
+                        New Quote
+                    </a>
+                    <div class="w-8 h-8 bg-slate-300 rounded-full"></div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Header -->
+        <div class="mb-8 fade-in">
+            <h1 class="text-3xl font-bold text-slate-800 mb-2">Quote Dashboard</h1>
+            <p class="text-slate-600">Manage your quotes and track performance.</p>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-xl shadow-sm p-6 card-hover">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-slate-600">Total Quotes</p>
+                        <p class="text-2xl font-bold text-slate-800">247</p>
+                        <p class="text-xs text-green-600">+12% this month</p>
+                    </div>
+                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm p-6 card-hover">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-slate-600">Pending Quotes</p>
+                        <p class="text-2xl font-bold text-slate-800">18</p>
+                        <p class="text-xs text-orange-600">Requires follow-up</p>
+                    </div>
+                    <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm p-6 card-hover">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-slate-600">Approved Quotes</p>
+                        <p class="text-2xl font-bold text-slate-800">156</p>
+                        <p class="text-xs text-green-600">63% conversion rate</p>
+                    </div>
+                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm p-6 card-hover">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-slate-600">Total Value</p>
+                        <p class="text-2xl font-bold text-slate-800 mono">$1.2M</p>
+                        <p class="text-xs text-blue-600">+8% this quarter</p>
+                    </div>
+                    <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <!-- Quote Trends Chart -->
+            <div class="bg-white rounded-xl shadow-sm p-6">
+                <h3 class="text-lg font-semibold text-slate-800 mb-4">Quote Trends</h3>
+                <div id="quoteTrendsChart" class="h-64"></div>
+            </div>
+
+            <!-- Solution Distribution -->
+            <div class="bg-white rounded-xl shadow-sm p-6">
+                <h3 class="text-lg font-semibold text-slate-800 mb-4">Solution Distribution</h3>
+                <div id="solutionChart" class="h-64"></div>
+            </div>
+        </div>
+
+        <!-- Recent Quotes Table -->
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+            <div class="px-6 py-4 border-b border-slate-200">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-lg font-semibold text-slate-800">Recent Quotes</h3>
+                    <div class="flex items-center space-x-4">
+                        <input type="text" placeholder="Search quotes..." class="px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <select class="px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">All Status</option>
+                            <option value="pending">Pending</option>
+                            <option value="approved">Approved</option>
+                            <option value="rejected">Rejected</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-slate-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Quote ID</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Customer</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Solution</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Total Value</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Date</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="quotesTable" class="bg-white divide-y divide-slate-200">
+                        <!-- Quotes will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 mt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="text-center text-sm text-slate-500">
+                <p>&copy; 2024 Digital Access Solutions. Professional quote generation system.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Dashboard functionality
+        class Dashboard {
+            constructor() {
+                this.init();
+            }
+
+            init() {
+                this.loadRecentQuotes();
+                this.initCharts();
+                this.initAnimations();
+            }
+
+            loadRecentQuotes() {
+                const quotes = [
+                    { id: 'QT-2024-001', customer: 'TechCorp Industries', solution: 'SMARTair', total: 8715, status: 'pending', date: '2024-10-17' },
+                    { id: 'QT-2024-002', customer: 'SecureSolutions LLC', solution: 'Aperio', total: 12500, status: 'approved', date: '2024-10-16' },
+                    { id: 'QT-2024-003', customer: 'City Government', solution: 'Access', total: 15600, status: 'pending', date: '2024-10-15' },
+                    { id: 'QT-2024-004', customer: 'University Campus', solution: 'eCLIQ', total: 4200, status: 'approved', date: '2024-10-14' },
+                    { id: 'QT-2024-005', customer: 'Global Enterprises', solution: 'SMARTair', total: 8900, status: 'rejected', date: '2024-10-13' },
+                    { id: 'QT-2024-006', customer: 'Local Business Hub', solution: 'Access', total: 3200, status: 'approved', date: '2024-10-12' },
+                    { id: 'QT-2024-007', customer: 'Tech Startups Inc', solution: 'Aperio', total: 11200, status: 'pending', date: '2024-10-11' },
+                    { id: 'QT-2024-008', customer: 'Healthcare Systems', solution: 'SMARTair', total: 18500, status: 'approved', date: '2024-10-10' }
+                ];
+
+                const tbody = document.getElementById('quotesTable');
+                tbody.innerHTML = '';
+
+                quotes.forEach(quote => {
+                    const row = document.createElement('tr');
+                    row.className = 'hover:bg-slate-50';
+                    
+                    const statusColors = {
+                        pending: 'bg-orange-100 text-orange-800',
+                        approved: 'bg-green-100 text-green-800',
+                        rejected: 'bg-red-100 text-red-800'
+                    };
+
+                    row.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900 mono">${quote.id}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-700">${quote.customer}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-700">${quote.solution}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-700 mono">$${quote.total.toLocaleString()}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full ${statusColors[quote.status]}">
+                                ${quote.status}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-700">${new Date(quote.date).toLocaleDateString()}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <div class="flex space-x-2">
+                                <button class="text-blue-600 hover:text-blue-900" onclick="editQuote('${quote.id}')">Edit</button>
+                                <button class="text-green-600 hover:text-green-900" onclick="duplicateQuote('${quote.id}')">Duplicate</button>
+                                <button class="text-red-600 hover:text-red-900" onclick="archiveQuote('${quote.id}')">Archive</button>
+                            </div>
+                        </td>
+                    `;
+                    
+                    tbody.appendChild(row);
+                });
+            }
+
+            initCharts() {
+                // Quote Trends Chart
+                const trendsChart = echarts.init(document.getElementById('quoteTrendsChart'));
+                const trendsOption = {
+                    tooltip: {
+                        trigger: 'axis'
+                    },
+                    xAxis: {
+                        type: 'category',
+                        data: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct']
+                    },
+                    yAxis: {
+                        type: 'value'
+                    },
+                    series: [{
+                        data: [12, 18, 25, 22, 28, 35, 42, 38, 45, 52],
+                        type: 'line',
+                        smooth: true,
+                        itemStyle: {
+                            color: '#1e3a8a'
+                        },
+                        areaStyle: {
+                            color: {
+                                type: 'linear',
+                                x: 0,
+                                y: 0,
+                                x2: 0,
+                                y2: 1,
+                                colorStops: [{
+                                    offset: 0, color: 'rgba(30, 58, 138, 0.3)'
+                                }, {
+                                    offset: 1, color: 'rgba(30, 58, 138, 0.05)'
+                                }]
+                            }
+                        }
+                    }]
+                };
+                trendsChart.setOption(trendsOption);
+
+                // Solution Distribution Chart
+                const solutionChart = echarts.init(document.getElementById('solutionChart'));
+                const solutionOption = {
+                    tooltip: {
+                        trigger: 'item'
+                    },
+                    series: [{
+                        type: 'pie',
+                        radius: '70%',
+                        data: [
+                            { value: 35, name: 'SMARTair', itemStyle: { color: '#1e3a8a' } },
+                            { value: 28, name: 'Aperio', itemStyle: { color: '#059669' } },
+                            { value: 22, name: 'Access', itemStyle: { color: '#7c3aed' } },
+                            { value: 15, name: 'eCLIQ', itemStyle: { color: '#ea580c' } }
+                        ],
+                        emphasis: {
+                            itemStyle: {
+                                shadowBlur: 10,
+                                shadowOffsetX: 0,
+                                shadowColor: 'rgba(0, 0, 0, 0.5)'
+                            }
+                        }
+                    }]
+                };
+                solutionChart.setOption(solutionOption);
+            }
+
+            initAnimations() {
+                // Animate fade-in elements
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('visible');
+                        }
+                    });
+                });
+
+                document.querySelectorAll('.fade-in').forEach(el => {
+                    observer.observe(el);
+                });
+            }
+        }
+
+        // Quote action functions
+        function editQuote(quoteId) {
+            window.location.href = `index.html?quote=${quoteId}`;
+        }
+
+        function duplicateQuote(quoteId) {
+            showNotification('Quote duplicated successfully!', 'success');
+        }
+
+        function archiveQuote(quoteId) {
+            if (confirm('Are you sure you want to archive this quote?')) {
+                showNotification('Quote archived successfully!', 'success');
+            }
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg z-50 ${
+                type === 'success' ? 'bg-green-600 text-white' :
+                type === 'error' ? 'bg-red-600 text-white' :
+                'bg-blue-600 text-white'
+            }`;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            anime({
+                targets: notification,
+                translateX: [300, 0],
+                opacity: [0, 1],
+                duration: 300,
+                easing: 'easeOutCubic'
+            });
+            
+            setTimeout(() => {
+                anime({
+                    targets: notification,
+                    translateX: [0, 300],
+                    opacity: [1, 0],
+                    duration: 300,
+                    easing: 'easeInCubic',
+                    complete: () => notification.remove()
+                });
+            }, 3000);
+        }
+
+        // Initialize dashboard when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            new Dashboard();
+        });
+    </script>
+</body>
+</html>

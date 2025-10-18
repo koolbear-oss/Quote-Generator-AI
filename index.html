@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DAS Quote Generation System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/js/splide.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/splide.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        .step-active { background: linear-gradient(135deg, #1e3a8a 0%, #475569 100%); }
+        .step-completed { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+        .card-hover { transition: all 0.3s ease; }
+        .card-hover:hover { transform: translateY(-4px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
+        .solution-card { background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); }
+        .solution-card.selected { background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); border: 2px solid #1e3a8a; }
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; }
+        .quantity-input { width: 80px; }
+        .fade-in { opacity: 0; transform: translateY(20px); }
+        .fade-in.visible { opacity: 1; transform: translateY(0); transition: all 0.6s ease; }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen">
+    <!-- Navigation Header -->
+    <nav class="bg-white shadow-sm border-b border-slate-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-8 h-8 bg-blue-800 rounded-lg flex items-center justify-center">
+                            <span class="text-white font-bold text-sm">DAS</span>
+                        </div>
+                        <span class="text-xl font-semibold text-slate-800">Quote System</span>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button id="saveDraft" class="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-800 transition-colors">
+                        Save Draft
+                    </button>
+                    <button id="helpBtn" class="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-800 transition-colors">
+                        Help
+                    </button>
+                    <div class="w-8 h-8 bg-slate-300 rounded-full"></div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Progress Indicator -->
+    <div class="bg-white border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm font-medium text-slate-600">Quote Progress</span>
+                    <span id="quoteId" class="text-sm mono text-slate-500">#QT-2024-001</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <div class="step-indicator step-completed w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-medium">1</div>
+                    <div class="w-8 h-0.5 bg-slate-300"></div>
+                    <div id="step2" class="step-indicator w-8 h-8 rounded-full bg-slate-300 flex items-center justify-center text-slate-600 text-sm font-medium">2</div>
+                    <div class="w-8 h-0.5 bg-slate-300"></div>
+                    <div id="step3" class="step-indicator w-8 h-8 rounded-full bg-slate-300 flex items-center justify-center text-slate-600 text-sm font-medium">3</div>
+                    <div class="w-8 h-0.5 bg-slate-300"></div>
+                    <div id="step4" class="step-indicator w-8 h-8 rounded-full bg-slate-300 flex items-center justify-center text-slate-600 text-sm font-medium">4</div>
+                    <div class="w-8 h-0.5 bg-slate-300"></div>
+                    <div id="step5" class="step-indicator w-8 h-8 rounded-full bg-slate-300 flex items-center justify-center text-slate-600 text-sm font-medium">5</div>
+                    <div class="w-8 h-0.5 bg-slate-300"></div>
+                    <div id="step6" class="step-indicator w-8 h-8 rounded-full bg-slate-300 flex items-center justify-center text-slate-600 text-sm font-medium">6</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Step 1: DAS Solution Selection -->
+        <div id="step1Content" class="step-content">
+            <div class="mb-8 fade-in">
+                <h1 class="text-3xl font-bold text-slate-800 mb-2">Choose DAS Solution</h1>
+                <p class="text-slate-600">Select the Digital Access Solution that best fits your project requirements.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="solution-card card-hover p-6 rounded-xl cursor-pointer" data-solution="SMARTair">
+                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-slate-800 mb-2">SMARTair</h3>
+                    <p class="text-slate-600 text-sm mb-4">Wireless access control with mobile and RFID credentials. Perfect for commercial buildings and high-traffic areas.</p>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-slate-500">Traffic Volume:</span>
+                            <span class="text-slate-700">Medium to High</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-500">Technology:</span>
+                            <span class="text-slate-700">RFID + BLE</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-500">Installation:</span>
+                            <span class="text-slate-700">Wireless</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="solution-card card-hover p-6 rounded-xl cursor-pointer" data-solution="Aperio">
+                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-slate-800 mb-2">Aperio</h3>
+                    <p class="text-slate-600 text-sm mb-4">Wireless locks with real-time monitoring. Ideal for hotels, offices, and educational institutions.</p>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-slate-500">Traffic Volume:</span>
+                            <span class="text-slate-700">High</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-500">Technology:</span>
+                            <span class="text-slate-700">RFID + Online</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-500">Installation:</span>
+                            <span class="text-slate-700">Wireless</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="solution-card card-hover p-6 rounded-xl cursor-pointer" data-solution="Access">
+                    <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-slate-800 mb-2">Access</h3>
+                    <p class="text-slate-600 text-sm mb-4">Traditional access control with advanced security features. Suitable for high-security applications.</p>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-slate-500">Traffic Volume:</span>
+                            <span class="text-slate-700">Variable</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-500">Technology:</span>
+                            <span class="text-slate-700">Multi-tech</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-500">Installation:</span>
+                            <span class="text-slate-700">Wired/Wireless</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="solution-card card-hover p-6 rounded-xl cursor-pointer" data-solution="eCLIQ">
+                    <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-slate-800 mb-2">eCLIQ</h3>
+                    <p class="text-slate-600 text-sm mb-4">Electronic cylinder system with programmable keys. Perfect for retrofitting existing doors.</p>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-slate-500">Traffic Volume:</span>
+                            <span class="text-slate-700">Low to Medium</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-500">Technology:</span>
+                            <span class="text-slate-700">Electronic Key</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-500">Installation:</span>
+                            <span class="text-slate-700">Cylinder Swap</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-end">
+                <button id="nextStep1" class="px-6 py-3 bg-blue-800 text-white font-medium rounded-lg hover:bg-blue-900 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                    Next: Select Products
+                </button>
+            </div>
+        </div>
+
+        <!-- Step 2: Product Selection -->
+        <div id="step2Content" class="step-content hidden">
+            <div class="mb-8 fade-in">
+                <h1 class="text-3xl font-bold text-slate-800 mb-2">Select Products</h1>
+                <p class="text-slate-600">Choose the products compatible with your selected DAS solution.</p>
+            </div>
+
+            <div class="flex gap-6 mb-8">
+                <!-- Filters Sidebar -->
+                <div class="w-64 bg-white rounded-xl shadow-sm p-6">
+                    <h3 class="font-semibold text-slate-800 mb-4">Filter Products</h3>
+                    
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-slate-700 mb-2">Category</label>
+                        <div class="space-y-2">
+                            <label class="flex items-center">
+                                <input type="checkbox" class="rounded border-slate-300 text-blue-600" checked>
+                                <span class="ml-2 text-sm text-slate-600">Electronic Locks</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" class="rounded border-slate-300 text-blue-600" checked>
+                                <span class="ml-2 text-sm text-slate-600">Card Readers</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" class="rounded border-slate-300 text-blue-600" checked>
+                                <span class="ml-2 text-sm text-slate-600">Controllers</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" class="rounded border-slate-300 text-blue-600" checked>
+                                <span class="ml-2 text-sm text-slate-600">Software</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-slate-700 mb-2">Price Range</label>
+                        <div class="space-y-2">
+                            <input type="range" id="priceRange" min="0" max="2000" value="2000" class="w-full">
+                            <div class="flex justify-between text-xs text-slate-500">
+                                <span>$0</span>
+                                <span id="priceValue">$2000</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-2">Search</label>
+                        <input type="text" id="productSearch" placeholder="Search products..." class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                </div>
+
+                <!-- Product Grid -->
+                <div class="flex-1">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-lg font-semibold text-slate-800">Available Products</h3>
+                        <div class="flex items-center space-x-4">
+                            <span class="text-sm text-slate-600">Selected: <span id="selectedCount">0</span></span>
+                            <button id="clearSelection" class="text-sm text-blue-600 hover:text-blue-800">Clear All</button>
+                        </div>
+                    </div>
+
+                    <div id="productGrid" class="product-grid">
+                        <!-- Products will be dynamically loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-between">
+                <button id="prevStep2" class="px-6 py-3 border border-slate-300 text-slate-700 font-medium rounded-lg hover:bg-slate-50 transition-colors">
+                    Previous
+                </button>
+                <button id="nextStep2" class="px-6 py-3 bg-blue-800 text-white font-medium rounded-lg hover:bg-blue-900 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                    Next: Add Quantities
+                </button>
+            </div>
+        </div>
+
+        <!-- Step 3: Quantity Management -->
+        <div id="step3Content" class="step-content hidden">
+            <div class="mb-8 fade-in">
+                <h1 class="text-3xl font-bold text-slate-800 mb-2">Configure Quantities</h1>
+                <p class="text-slate-600">Set quantities and specifications for your selected products.</p>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm p-6 mb-8">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-lg font-semibold text-slate-800">Selected Products</h3>
+                    <button id="bulkImport" class="px-4 py-2 text-sm bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors">
+                        Bulk Import
+                    </button>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="border-b border-slate-200">
+                                <th class="text-left py-3 px-4 font-medium text-slate-600">Product</th>
+                                <th class="text-left py-3 px-4 font-medium text-slate-600">Unit Price</th>
+                                <th class="text-left py-3 px-4 font-medium text-slate-600">Quantity</th>
+                                <th class="text-left py-3 px-4 font-medium text-slate-600">Subtotal</th>
+                                <th class="text-left py-3 px-4 font-medium text-slate-600">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="quantityTable">
+                            <!-- Selected products will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="mt-6 pt-6 border-t border-slate-200">
+                    <div class="flex justify-between items-center">
+                        <span class="text-lg font-semibold text-slate-800">Total:</span>
+                        <span id="step3Total" class="text-2xl font-bold text-blue-800 mono">$0.00</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-between">
+                <button id="prevStep3" class="px-6 py-3 border border-slate-300 text-slate-700 font-medium rounded-lg hover:bg-slate-50 transition-colors">
+                    Previous
+                </button>
+                <button id="nextStep3" class="px-6 py-3 bg-blue-800 text-white font-medium rounded-lg hover:bg-blue-900 transition-colors">
+                    Next: Select Customer
+                </button>
+            </div>
+        </div>
+
+        <!-- Step 4: Customer Selection -->
+        <div id="step4Content" class="step-content hidden">
+            <div class="mb-8 fade-in">
+                <h1 class="text-3xl font-bold text-slate-800 mb-2">Select Customer</h1>
+                <p class="text-slate-600">Choose a customer to apply appropriate pricing and discounts.</p>
+            </div>
+
+            <div class="flex gap-6 mb-8">
+                <!-- Customer Search -->
+                <div class="w-80">
+                    <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+                        <h3 class="font-semibold text-slate-800 mb-4">Find Customer</h3>
+                        <div class="space-y-4">
+                            <input type="text" id="customerSearch" placeholder="Search by company or contact..." class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-2">Customer Type</label>
+                                <select id="customerTypeFilter" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="">All Types</option>
+                                    <option value="reseller">Reseller</option>
+                                    <option value="end-user">End User</option>
+                                    <option value="government">Government</option>
+                                    <option value="education">Education</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl shadow-sm p-6">
+                        <h3 class="font-semibold text-slate-800 mb-4">Quick Add Customer</h3>
+                        <button id="addCustomer" class="w-full px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors">
+                            + Add New Customer
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Customer List -->
+                <div class="flex-1">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-lg font-semibold text-slate-800">Available Customers</h3>
+                        <span class="text-sm text-slate-600">Found: <span id="customerCount">12</span> customers</span>
+                    </div>
+
+                    <div id="customerGrid" class="space-y-4">
+                        <!-- Customer cards will be populated here -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-between">
+                <button id="prevStep4" class="px-6 py-3 border border-slate-300 text-slate-700 font-medium rounded-lg hover:bg-slate-50 transition-colors">
+                    Previous
+                </button>
+                <button id="nextStep4" class="px-6 py-3 bg-blue-800 text-white font-medium rounded-lg hover:bg-blue-900 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                    Next: Apply Discounts
+                </button>
+            </div>
+        </div>
+
+        <!-- Step 5: Discount Application -->
+        <div id="step5Content" class="step-content hidden">
+            <div class="mb-8 fade-in">
+                <h1 class="text-3xl font-bold text-slate-800 mb-2">Apply Discounts</h1>
+                <p class="text-slate-600">Review and apply discounts based on customer tier and project size.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                <!-- Discount Controls -->
+                <div class="lg:col-span-2 space-y-6">
+                    <!-- Customer Discount -->
+                    <div class="bg-white rounded-xl shadow-sm p-6">
+                        <h3 class="text-lg font-semibold text-slate-800 mb-4">Customer Discount</h3>
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center">
+                                <span class="text-slate-600">Customer Tier:</span>
+                                <span id="customerTier" class="font-medium text-slate-800">Gold Partner</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-slate-600">Standard Discount:</span>
+                                <span id="standardDiscount" class="font-medium text-green-600">25%</span>
+                            </div>
+                            <div class="pt-4 border-t border-slate-200">
+                                <label class="block text-sm font-medium text-slate-700 mb-2">Additional Discount</label>
+                                <div class="flex items-center space-x-4">
+                                    <input type="range" id="additionalDiscount" min="0" max="15" value="0" class="flex-1">
+                                    <span id="additionalDiscountValue" class="text-lg font-medium text-slate-800 w-12">0%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Project Discount -->
+                    <div class="bg-white rounded-xl shadow-sm p-6">
+                        <h3 class="text-lg font-semibold text-slate-800 mb-4">Project Discount</h3>
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center">
+                                <span class="text-slate-600">Project Value:</span>
+                                <span id="projectValue" class="font-medium mono">$12,450.00</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-slate-600">Volume Discount:</span>
+                                <span id="volumeDiscount" class="font-medium text-green-600">5%</span>
+                            </div>
+                            <div class="pt-4 border-t border-slate-200">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-slate-600">Total Discount:</span>
+                                    <span id="totalDiscount" class="text-lg font-bold text-green-600">30%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pricing Summary -->
+                <div class="bg-white rounded-xl shadow-sm p-6">
+                    <h3 class="text-lg font-semibold text-slate-800 mb-4">Pricing Summary</h3>
+                    <div class="space-y-4">
+                        <div class="flex justify-between">
+                            <span class="text-slate-600">Subtotal:</span>
+                            <span id="pricingSubtotal" class="mono">$12,450.00</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-600">Customer Discount:</span>
+                            <span id="pricingCustomerDiscount" class="text-green-600 mono">-$3,112.50</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-600">Volume Discount:</span>
+                            <span id="pricingVolumeDiscount" class="text-green-600 mono">-$622.50</span>
+                        </div>
+                        <div class="pt-4 border-t border-slate-200">
+                            <div class="flex justify-between items-center">
+                                <span class="text-lg font-semibold text-slate-800">Total:</span>
+                                <span id="pricingTotal" class="text-2xl font-bold text-blue-800 mono">$8,715.00</span>
+                            </div>
+                        </div>
+                        <div class="pt-2 text-sm text-slate-500">
+                            <p>Quote valid for 30 days</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-between">
+                <button id="prevStep5" class="px-6 py-3 border border-slate-300 text-slate-700 font-medium rounded-lg hover:bg-slate-50 transition-colors">
+                    Previous
+                </button>
+                <button id="nextStep5" class="px-6 py-3 bg-blue-800 text-white font-medium rounded-lg hover:bg-blue-900 transition-colors">
+                    Next: Export Quote
+                </button>
+            </div>
+        </div>
+
+        <!-- Step 6: Quote Export -->
+        <div id="step6Content" class="step-content hidden">
+            <div class="mb-8 fade-in">
+                <h1 class="text-3xl font-bold text-slate-800 mb-2">Export Quote</h1>
+                <p class="text-slate-600">Review your quote and choose export options.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                <!-- Quote Preview -->
+                <div class="lg:col-span-2">
+                    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                        <div class="bg-slate-50 px-6 py-4 border-b border-slate-200">
+                            <h3 class="text-lg font-semibold text-slate-800">Quote Preview</h3>
+                        </div>
+                        <div class="p-6">
+                            <div id="quotePreview" class="min-h-96 bg-white">
+                                <!-- Quote content will be rendered here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Export Options -->
+                <div class="space-y-6">
+                    <div class="bg-white rounded-xl shadow-sm p-6">
+                        <h3 class="text-lg font-semibold text-slate-800 mb-4">Export Options</h3>
+                        <div class="space-y-4">
+                            <button id="exportPDF" class="w-full flex items-center justify-center px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
+                                Download PDF
+                            </button>
+                            
+                            <button id="exportCSV" class="w-full flex items-center justify-center px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
+                                Export CSV
+                            </button>
+
+                            <button id="emailQuote" class="w-full flex items-center justify-center px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                                </svg>
+                                Email Quote
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl shadow-sm p-6">
+                        <h3 class="text-lg font-semibold text-slate-800 mb-4">Quote Details</h3>
+                        <div class="space-y-3 text-sm">
+                            <div class="flex justify-between">
+                                <span class="text-slate-600">Quote ID:</span>
+                                <span class="mono">#QT-2024-001</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-slate-600">Created:</span>
+                                <span id="quoteDate">Oct 17, 2024</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-slate-600">Expires:</span>
+                                <span id="quoteExpiry">Nov 16, 2024</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-slate-600">Total Value:</span>
+                                <span class="font-medium mono">$8,715.00</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl shadow-sm p-6">
+                        <h3 class="text-lg font-semibold text-slate-800 mb-4">Actions</h3>
+                        <div class="space-y-3">
+                            <button id="saveQuote" class="w-full px-4 py-2 text-sm bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors">
+                                Save to Dashboard
+                            </button>
+                            <button id="duplicateQuote" class="w-full px-4 py-2 text-sm bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors">
+                                Duplicate Quote
+                            </button>
+                            <button id="newQuote" class="w-full px-4 py-2 text-sm bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors">
+                                Create New Quote
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-between">
+                <button id="prevStep6" class="px-6 py-3 border border-slate-300 text-slate-700 font-medium rounded-lg hover:bg-slate-50 transition-colors">
+                    Previous
+                </button>
+                <div class="flex space-x-4">
+                    <button id="completeQuote" class="px-6 py-3 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors">
+                        Complete Quote
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 mt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="text-center text-sm text-slate-500">
+                <p>&copy; 2024 Digital Access Solutions. Professional quote generation system.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="main.js"></script>
+</body>
+</html>
