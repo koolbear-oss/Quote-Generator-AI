@@ -8,14 +8,15 @@ export default function DiscountApplier() {
   
   // State for storing discount matrix and calculations
   const [discountMatrix, setDiscountMatrix] = useState({})
-  const [productDiscounts, setProductDiscounts] = useState([])
   const [volumeDiscount, setVolumeDiscount] = useState(0)
   const [additionalDiscount, setAdditionalDiscount] = useState(0)
   const [isLoading, setIsLoading] = useState(false)
+  const [customerGroup, setCustomerGroup] = useState(null)
 
   // Load discount matrix when a customer is selected
   useEffect(() => {
     if (state.customer) {
+      loadCustomerGroup();
       loadDiscountMatrix();
     }
   }, [state.customer]);
@@ -30,7 +31,34 @@ export default function DiscountApplier() {
   // Calculate volume discount based on total value
   useEffect(() => {
     calculateVolumeDiscount();
-  }, [productDiscounts]);
+  }, [state.products]);
+  
+  // Set additional discount from state
+  useEffect(() => {
+    setAdditionalDiscount(state.additionalDiscount || 0);
+  }, [state.additionalDiscount]);
+
+  // Load customer group
+  async function loadCustomerGroup() {
+    try {
+      if (!state.customer?.discount_group_id) {
+        console.error('Customer has no discount group');
+        return;
+      }
+      
+      const { data, error } = await supabase
+        .from('customer_groups')
+        .select('*')
+        .eq('id', state.customer.discount_group_id)
+        .single();
+        
+      if (error) throw error;
+      
+      setCustomerGroup(data);
+    } catch (error) {
+      console.error('Error loading customer group:', error);
+    }
+  }
 
   // Load discount matrix from database
   async function loadDiscountMatrix() {
@@ -71,27 +99,19 @@ export default function DiscountApplier() {
   
   // Apply appropriate discount to each product
   function applyProductDiscounts() {
-    const discounts = state.products.map(product => {
+    state.products.forEach(product => {
       const discountGroup = product.discount_group || 'DEFAULT';
       const discountPercentage = discountMatrix[discountGroup] || 0;
       
-      return {
-        id: product.id,
-        discount_percentage: discountPercentage
-      };
-    });
-    
-    setProductDiscounts(discounts);
-    
-    // Update discount in the global quote state
-    discounts.forEach(item => {
-      dispatch({ 
-        type: 'UPDATE_PRODUCT_DISCOUNT', 
-        payload: { 
-          id: item.id, 
-          discount_percentage: item.discount_percentage 
-        }
-      });
+      if (product.discount_percentage !== discountPercentage) {
+        dispatch({ 
+          type: 'UPDATE_PRODUCT_DISCOUNT', 
+          payload: { 
+            id: product.id, 
+            discount_percentage: discountPercentage 
+          }
+        });
+      }
     });
   }
   
@@ -104,6 +124,7 @@ export default function DiscountApplier() {
     
     let newVolumeDiscount = 0;
     
+    // Updated volume discount structure
     if (grossTotal > 200000) {
       newVolumeDiscount = 12;
     } else if (grossTotal > 150000) {
@@ -120,8 +141,10 @@ export default function DiscountApplier() {
       newVolumeDiscount = 1;
     }
     
-    setVolumeDiscount(newVolumeDiscount);
-    dispatch({ type: 'SET_VOLUME_DISCOUNT', payload: newVolumeDiscount });
+    if (newVolumeDiscount !== state.volumeDiscount) {
+      setVolumeDiscount(newVolumeDiscount);
+      dispatch({ type: 'SET_VOLUME_DISCOUNT', payload: newVolumeDiscount });
+    }
   }
   
   // Handle additional discount change
@@ -148,7 +171,7 @@ export default function DiscountApplier() {
   const additionalDiscountAmount = grossTotal * (additionalDiscount / 100);
   
   const totalDiscount = productDiscountAmount + volumeDiscountAmount + additionalDiscountAmount;
-  const totalDiscountPercentage = (totalDiscount / grossTotal) * 100 || 0;
+  const totalDiscountPercentage = grossTotal > 0 ? (totalDiscount / grossTotal) * 100 : 0;
   const netTotal = grossTotal - totalDiscount;
 
   // If no customer selected, show a message
@@ -192,12 +215,12 @@ export default function DiscountApplier() {
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-slate-600">Discount Group:</span>
-                <span className="font-medium text-slate-800">{state.customer.discount_group?.name || "Standard"}</span>
+                <span className="font-medium text-slate-800">{customerGroup?.name || "Standard"}</span>
               </div>
               <div className="pt-4 border-t border-slate-200">
                 <div className="flex justify-between items-center">
                   <span className="text-slate-600">Product Discount Amount:</span>
-                  <span className="font-medium text-green-600">${productDiscountAmount.toFixed(2)}</span>
+                  <span className="font-medium text-green-600">-${productDiscountAmount.toFixed(2)}</span>
                 </div>
               </div>
             </div>
@@ -218,7 +241,7 @@ export default function DiscountApplier() {
               <div className="pt-4 border-t border-slate-200">
                 <div className="flex justify-between items-center">
                   <span className="text-slate-600">Volume Discount Amount:</span>
-                  <span className="font-medium text-green-600">${volumeDiscountAmount.toFixed(2)}</span>
+                  <span className="font-medium text-green-600">-${volumeDiscountAmount.toFixed(2)}</span>
                 </div>
               </div>
             </div>
@@ -251,7 +274,7 @@ export default function DiscountApplier() {
                   <div className="flex justify-between items-center">
                     <span className="text-slate-600">Additional Discount Amount:</span>
                     <span className="font-medium text-green-600">
-                      ${additionalDiscountAmount.toFixed(2)}
+                      -${additionalDiscountAmount.toFixed(2)}
                     </span>
                   </div>
                 </div>
