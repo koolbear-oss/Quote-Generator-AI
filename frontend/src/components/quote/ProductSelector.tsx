@@ -28,7 +28,7 @@ export default function ProductSelector() {
       
       const { data, error } = await supabase
         .from('products')
-        .select('*')
+        .select('*, discount_group')  // Make sure discount_group is included
         .eq('sub_brand', state.dasSolution.name)
         .eq('active', true)
         .order('name')
@@ -270,36 +270,46 @@ export default function ProductSelector() {
         </div>
       </div>
 
-      {/* Product Detail Modal */}
-      {selectedProductDetail && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg p-6 max-w-2xl max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold">{selectedProductDetail.product_id}</h2>
-              <button 
-                onClick={() => setSelectedProductDetail(null)}
-                className="text-gray-500 hover:text-gray-700"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-            
-            <div className="space-y-4">
-              <div className="flex items-center gap-2 text-sm mb-4">
-                <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded">
-                  {selectedProductDetail.subgroup_name || 'Category N/A'}
-                </span>
-                <span className="px-2 py-1 bg-gray-100 text-gray-800 rounded">
-                  {selectedProductDetail.sub_brand}
-                </span>
+        {/* Product Detail Modal */}
+        {selectedProductDetail && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg p-6 max-w-2xl max-h-[90vh] overflow-y-auto">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-bold">{selectedProductDetail.product_id}</h2>
+                <button 
+                  onClick={() => setSelectedProductDetail(null)}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
               </div>
               
-              <div className="bg-slate-50 p-3 rounded-lg text-sm">
-                <p className="text-slate-500 mb-1">Brand</p>
-                <p className="font-medium">{selectedProductDetail.brand}</p>
-              </div>
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 text-sm mb-4">
+                  <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded">
+                    {selectedProductDetail.subgroup_name || 'Category N/A'}
+                  </span>
+                  <span className="px-2 py-1 bg-gray-100 text-gray-800 rounded">
+                    {selectedProductDetail.sub_brand}
+                  </span>
+                  {/* Add Discount Group Badge */}
+                  {selectedProductDetail.discount_group && (
+                    <span className={`px-2 py-1 rounded ${
+                      selectedProductDetail.discount_group.includes('SOFT') 
+                        ? 'bg-indigo-100 text-indigo-800' 
+                        : 'bg-green-100 text-green-800'
+                    }`}>
+                      {selectedProductDetail.discount_group}
+                    </span>
+                  )}
+                </div>
+                
+                <div className="bg-slate-50 p-3 rounded-lg text-sm">
+                  <p className="text-slate-500 mb-1">Brand</p>
+                  <p className="font-medium">{selectedProductDetail.brand}</p>
+                </div>
               
               <div className="bg-slate-50 p-4 rounded-lg">
                 <p className="text-slate-500 mb-2 text-sm">Description</p>
