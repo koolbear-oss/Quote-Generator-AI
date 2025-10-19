@@ -6,212 +6,6 @@ import { PDFViewer, PDFDownloadLink } from '@react-pdf/renderer';
 import { QuotePDF } from './QuotePDF';
 
 export const QuoteExporter = forwardRef(function QuoteExporter(props, ref) {
-  const { state, dispatch } = useQuote();
-  const [quoteName, setQuoteName] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [pdfReady, setPdfReady] = useState(false);
-  const [showPdfPreview, setShowPdfPreview] = useState(false);
-  
-  // Calculate total amounts with fallbacks for missing properties
-  const grossTotal = state.products.reduce(
-    (sum, product) => {
-      const unitPrice = product.gross_price || product.price || 0;
-      const quantity = product.quantity || 1;
-      return sum + (unitPrice * quantity);
-    }, 
-    0
-  );
-  
-  // Function to calculate discount for a product
-  const calculateDiscountForProduct = (product) => {
-    return product.discount_percentage || 0;
-  };
-  
-  // Expose the completeQuote function to parent components
-  useImperativeHandle(ref, () => ({
-    completeQuote
-  }));
-  
-  // Debug function to check authentication status
-  const checkAuthStatus = async () => {
-    try {
-      const { data } = await supabase.auth.getSession();
-      console.log("Auth status:", data.session ? "Authenticated" : "Not authenticated");
-      if (data.session) {
-        console.log("User ID:", data.session.user.id);
-        console.log("Session expires at:", new Date(data.session.expires_at * 1000));
-      }
-      return data.session;
-    } catch (error) {
-      console.error("Error checking auth status:", error);
-      return null;
-    }
-  };
-  
-  // Complete quote function
-  const completeQuote = async () => {
-    try {
-      setIsSubmitting(true);
-      
-      // Get the current user session and check authentication
-      const { data: { session }, error: authError } = await supabase.auth.getSession();
-      
-      if (authError) {
-        console.error("Auth error:", authError);
-        alert("Authentication error. Please sign in again.");
-        setIsSubmitting(false);
-        return;
-      }
-      
-      if (!session) {
-        console.error("No active session");
-        alert("Please sign in to complete a quote");
-        setIsSubmitting(false);
-        return;
-      }
-      
-      console.log("Authenticated user ID:", session.user.id);
-      
-      // Validate required fields
-      if (!state.dasSolution) {
-        alert("Please select a DAS solution");
-        setIsSubmitting(false);
-        return;
-      }
-      
-      if (!state.customer) {
-        alert("Please select a customer");
-        setIsSubmitting(false);
-        return;
-      }
-      
-      if (state.products.length === 0) {
-        alert("Please add at least one product");
-        setIsSubmitting(false);
-        return;
-      }
-      
-      // Generate quote number
-      const year = new Date().getFullYear();
-      
-      // Try to get the latest quote (if any)
-      const { data: latestQuotes, error: quoteError } = await supabase
-        .from('quotes')
-        .select('quote_number')
-        .ilike('quote_number', `Q-${year}-%`)
-        .order('quote_number', { ascending: false })
-        .limit(1);
-      
-      if (quoteError) {
-        console.error("Error fetching latest quote:", quoteError);
-      }
-      
-      // Generate the next sequence number
-      let sequenceNumber = 1;
-      if (latestQuotes && latestQuotes.length > 0) {
-        const parts = latestQuotes[0].quote_number.split('-');
-        if (parts.length === 3) {
-          sequenceNumber = parseInt(parts[2]) + 1;
-        }
-      }
-      
-      const quoteNumber = `Q-${year}-${sequenceNumber.toString().padStart(4, '0')}`;
-      
-      // Create the quote with explicit created_by field
-      const quoteData = {
-        quote_number: quoteNumber,
-        name: quoteName || 'Untitled Quote',
-        customer_id: state.customer?.id,
-        das_solution_id: state.dasSolution?.id,
-        project_discount: state.projectDiscount || 0,
-        notes: state.notes || '',
-        status: 'completed',
-        created_by: session.user.id  // CRITICAL: This must match auth.uid()
-      };
-      
-      console.log("About to insert quote with auth ID:", session.user.id);
-      console.log("Inserting quote with data:", quoteData);
-      
-      // Insert the quote
-      const { data: newQuote, error: insertError } = await supabase
-        .from('quotes')
-        .insert(quoteData)
-        .select()
-        .single();
-      
-      if (insertError) {
-        console.error("Error inserting quote:", insertError);
-        alert(`Failed to create quote: ${insertError.message}`);
-        setIsSubmitting(false);
-        return;
-      }
-      
-      console.log("Quote created successfully:", newQuote);
-      
-      if (state.products.length > 0) {
-        const quoteItems = state.products.map(product => {
-          // Calculate prices with fallbacks
-          const unitPrice = product.gross_price || product.price || 0;
-          const quantity = product.quantity || 1;
-          const discountPercentage = product.discount_percentage || 0;
-          
-          // Calculate total price with discount applied
-          const totalPrice = unitPrice * quantity * (1 - (discountPercentage / 100));
-          
-          return {
-            quote_id: newQuote.id,
-            product_id: product.id,
-            quantity: quantity,
-            unit_price: unitPrice,
-            discount_percentage: discountPercentage,
-            total_price: totalPrice // Add this field to fix the db error
-          };
-        });
-        
-        console.log("Adding quote items with total_price:", quoteItems);
-        
-        const { error: itemsError } = await supabase
-          .from('quote_items')
-          .insert(quoteItems);
-        
-        if (itemsError) {
-          console.error("Error adding quote items:", itemsError);
-          // Don't throw an error, just log it and continue
-        } else {
-          console.log("Successfully added quote items");
-        }
-      }
-      
-      console.log("Adding quote items with total_price:", quoteItems);
-      
-      const { error: itemsError } = await supabase
-        .from('quote_items')
-        .insert(quoteItems);
-      
-      if (itemsError) {
-        console.error("Error adding quote items:", itemsError);
-      }
-    }
-      
-      alert(`Quote ${quoteNumber} completed successfully!`);
-      
-      // Clear the quote
-      dispatch({ type: 'CLEAR_QUOTE' });
-      setQuoteName('');
-      
-    } catch (error) {
-      console.error("Error completing quote:", error);
-      alert("Failed to complete the quote. Please try again.");
-    } finally {
-      setIsSubmitting(false);
-    }// src/components/quote/QuoteExporter.tsx
-import { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
-import { useQuote } from '../../context/QuoteContext';
-import { supabase } from '../../services/supabase';
-import { PDFViewer, PDFDownloadLink } from '@react-pdf/renderer';
-import { QuotePDF } from './QuotePDF';
-
-export const QuoteExporter = forwardRef(function QuoteExporter(props, ref) {
   const { state, dispatch } = useQuote();
   const [quoteName, setQuoteName] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -228,7 +22,7 @@ export const QuoteExporter = forwardRef(function QuoteExporter(props, ref) {
     0
   );
   
-  // Function to calculate discount for a product
+  // Function to calculate discount for a product (Unused but kept for clarity)
   const calculateDiscountForProduct = (product) => {
     return product.discount_percentage || 0;
   };
@@ -354,9 +148,9 @@ export const QuoteExporter = forwardRef(function QuoteExporter(props, ref) {
       
       console.log("Quote created successfully:", newQuote);
       
-      let quoteItems = [];
+      // Insert Quote Items
       if (state.products.length > 0) {
-        quoteItems = state.products.map(product => {
+        const quoteItems = state.products.map(product => {
           // Calculate prices with fallbacks
           const unitPrice = product.gross_price || product.price || 0;
           const quantity = product.quantity || 1;
@@ -371,7 +165,7 @@ export const QuoteExporter = forwardRef(function QuoteExporter(props, ref) {
             quantity: quantity,
             unit_price: unitPrice,
             discount_percentage: discountPercentage,
-            total_price: totalPrice
+            total_price: totalPrice // Important for database calculation/record
           };
         });
         
@@ -383,16 +177,16 @@ export const QuoteExporter = forwardRef(function QuoteExporter(props, ref) {
         
         if (itemsError) {
           console.error("Error adding quote items:", itemsError);
-          // Don't throw an error, just log it and continue
+          // Log error but allow quote to complete as main quote record is saved
         } else {
           console.log("Successfully added quote items");
         }
-      }
-
-      // SUCCESS LOGIC - This was the part that was incorrectly placed before the catch block
+      } // <-- This closes the 'if (state.products.length > 0)' block
+      
+      // SUCCESS LOGIC - Runs only if the try block completes up to this point
       alert(`Quote ${quoteNumber} completed successfully!`);
       
-      // Clear the quote
+      // Clear the quote state
       dispatch({ type: 'CLEAR_QUOTE' });
       setQuoteName('');
       
