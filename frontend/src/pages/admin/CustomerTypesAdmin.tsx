@@ -1,4 +1,31 @@
 // src/pages/admin/CustomerTypesAdmin.tsx
+
+useEffect(() => {
+  // Check if user is admin
+  const checkAdmin = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session || !session.user) {
+      // Redirect to login or dashboard
+      window.location.href = '/login';
+      return;
+    }
+    
+    // Get user role from database
+    const { data: user } = await supabase
+      .from('users')
+      .select('role')
+      .eq('id', session.user.id)
+      .single();
+      
+    if (!user || user.role !== 'admin') {
+      // Not an admin, redirect
+      window.location.href = '/dashboard';
+    }
+  };
+  
+  checkAdmin();
+}, []);
+
 import { useState, useEffect } from 'react';
 import { supabase } from '../../services/supabase';
 

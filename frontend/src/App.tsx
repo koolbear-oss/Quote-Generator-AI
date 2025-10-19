@@ -10,6 +10,7 @@ import Customers from './pages/Customers'
 import Products from './pages/Products'
 import Login from './pages/Login'
 import ProtectedRoute from './components/ProtectedRoute'
+import CustomerTypesAdmin from './pages/admin/CustomerTypesAdmin';
 import './index.css'; // or whatever your CSS file is called
 
 function App() {
@@ -47,6 +48,7 @@ function App() {
             </ProtectedRoute>
           } />
           <Route path="/admin/import" element={<DataImport />} />
+          <Route path="/admin/customer-types" element={<CustomerTypesAdmin />} />
         </Routes>
       </QuoteProvider>
     </AuthProvider>
