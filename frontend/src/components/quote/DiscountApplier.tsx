@@ -18,14 +18,18 @@ export default function DiscountApplier() {
     const subtotal = state.products.reduce((sum, product) => sum + (product.price * product.quantity), 0)
     
     let volumeDisc = 0
-    if (subtotal > 50000) {
+    if (subtotal > 125000) {
       volumeDisc = 12
+    } else if (subtotal > 100000) {
+      volumeDisc = 11
+    } else if (subtotal > 50000) {
+      volumeDisc = 7
     } else if (subtotal > 25000) {
-      volumeDisc = 8
-    } else if (subtotal > 10000) {
       volumeDisc = 5
-    } else if (subtotal > 5000) {
+    } else if (subtotal > 12500) {
       volumeDisc = 3
+    } else if (subtotal > 6000) {
+      volumeDisc = 1
     }
     
     setVolumeDiscount(volumeDisc)
