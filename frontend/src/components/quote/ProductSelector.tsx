@@ -170,7 +170,8 @@ export default function ProductSelector() {
                 Selected: {state.products.length}
               </span>
               <button
-                onClick={handleClearAll} {/* Use updated function */}
+                {/* Use updated function */}
+                onClick={handleClearAll}
                 className="text-sm text-primary-600 hover:text-primary-800"
               >
                 Clear All
