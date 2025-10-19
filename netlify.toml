@@ -9,3 +9,8 @@
   NODE_VERSION = "18"
   # Force Tailwind to compile fully
   NODE_ENV = "production"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
