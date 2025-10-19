@@ -151,16 +151,12 @@ export const QuoteExporter = forwardRef(function QuoteExporter(props, ref) {
       // Continue with saving quote items...
       if (state.products.length > 0) {
       const quoteItems = state.products.map(product => {
-        // Calculate unit price with fallback
         const unitPrice = product.gross_price || product.price || 0;
         const quantity = product.quantity || 1;
         const discountPercentage = product.discount_percentage || 0;
         
-        // Calculate the discounted price
-        const discountedPrice = unitPrice * (1 - (discountPercentage / 100));
-        
         // Calculate the total price
-        const totalPrice = discountedPrice * quantity;
+        const totalPrice = unitPrice * quantity * (1 - (discountPercentage / 100));
         
         return {
           quote_id: newQuote.id,
@@ -168,7 +164,7 @@ export const QuoteExporter = forwardRef(function QuoteExporter(props, ref) {
           quantity: quantity,
           unit_price: unitPrice,
           discount_percentage: discountPercentage,
-          total_price: totalPrice // Add this field
+          total_price: totalPrice // This fixes the database error
         };
       });
       
