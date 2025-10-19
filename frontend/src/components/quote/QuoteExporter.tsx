@@ -148,25 +148,39 @@ export const QuoteExporter = forwardRef(function QuoteExporter(props, ref) {
       
       console.log("Quote created successfully:", newQuote);
       
-      // Continue with saving quote items...
       if (state.products.length > 0) {
-      const quoteItems = state.products.map(product => {
-        const unitPrice = product.gross_price || product.price || 0;
-        const quantity = product.quantity || 1;
-        const discountPercentage = product.discount_percentage || 0;
+        const quoteItems = state.products.map(product => {
+          // Calculate prices with fallbacks
+          const unitPrice = product.gross_price || product.price || 0;
+          const quantity = product.quantity || 1;
+          const discountPercentage = product.discount_percentage || 0;
+          
+          // Calculate total price with discount applied
+          const totalPrice = unitPrice * quantity * (1 - (discountPercentage / 100));
+          
+          return {
+            quote_id: newQuote.id,
+            product_id: product.id,
+            quantity: quantity,
+            unit_price: unitPrice,
+            discount_percentage: discountPercentage,
+            total_price: totalPrice // Add this field to fix the db error
+          };
+        });
         
-        // Calculate the total price
-        const totalPrice = unitPrice * quantity * (1 - (discountPercentage / 100));
+        console.log("Adding quote items with total_price:", quoteItems);
         
-        return {
-          quote_id: newQuote.id,
-          product_id: product.id,
-          quantity: quantity,
-          unit_price: unitPrice,
-          discount_percentage: discountPercentage,
-          total_price: totalPrice // This fixes the database error
-        };
-      });
+        const { error: itemsError } = await supabase
+          .from('quote_items')
+          .insert(quoteItems);
+        
+        if (itemsError) {
+          console.error("Error adding quote items:", itemsError);
+          // Don't throw an error, just log it and continue
+        } else {
+          console.log("Successfully added quote items");
+        }
+      }
       
       console.log("Adding quote items with total_price:", quoteItems);
       

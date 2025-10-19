@@ -1,4 +1,4 @@
-productId;brand;subBrand;subGroup;subGroupName;shortDescription;grossPrice;longDescription;discountGroup
+product_id;brand;sub_brand;category_id;subgroup_name;short_description;gross_price;long_description;discount_group
 SNACKITSTA;ASSA ABLOY;SMARTair;11.09.003.002;System management;SMARTair Stand Alone Management kit bestaande uit programeerkaart, noodvoeding en 25 badges.;253.03;SMARTair Stand Alone Management kit bestaande uit programeerkaart, noodvoeding en 25 badges.;SMART SOFT
 SNACKITSTASDW;ASSA ABLOY;SMARTair;11.09.003.002;System management;SMARTair Stand Alone Management shadow kit met shadow programeerkaart, noodvoeding en 24 badges (voor 12 gebruikers).;285.47;SMARTair Stand Alone Management shadow kit met shadow programeerkaart, noodvoeding en 24 badges (voor 12 gebruikers).;SMART SOFT
 SNACLICSTA;ASSA ABLOY;SMARTair;11.09.003.002;System management;SMARTair Stand Alone licentie bestaande uit programmeerkaart, resetkaart, noodkaart.;51.91;SMARTair Stand Alone licentie bestaande uit programmeerkaart, resetkaart, noodkaart.;SMART SOFT

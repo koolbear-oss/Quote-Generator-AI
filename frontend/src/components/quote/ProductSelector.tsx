@@ -22,12 +22,22 @@ export default function ProductSelector() {
     
     setLoading(true)
     try {
-      const { data } = await supabase
+      // Filter products by the selected sub_brand
+      console.log("Loading products for sub_brand:", state.dasSolution.name);
+      
+      const { data, error } = await supabase
         .from('products')
-        .select(`*, category:product_categories(name)`)
+        .select('*')
+        .eq('sub_brand', state.dasSolution.name)
         .eq('active', true)
         .order('name')
 
+      if (error) {
+        throw error;
+      }
+      
+      console.log(`Loaded ${data?.length || 0} products for ${state.dasSolution.name}`);
+      
       if (data) {
         setProducts(data)
       }
@@ -38,51 +48,55 @@ export default function ProductSelector() {
     }
   }
 
-  const categories = [...new Set(products.map(p => p.category?.name).filter(Boolean))]
+  // Get unique categories from the loaded products
+  const categories = [...new Set(products.map(p => p.subgroup_name).filter(Boolean))].sort();
   
   const filteredProducts = products.filter(product => {
     const matchesSearch = !searchTerm || 
-      product.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.product_id?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       product.short_description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.brand?.toLowerCase().includes(searchTerm.toLowerCase())
+      product.brand?.toLowerCase().includes(searchTerm.toLowerCase());
     
-    const matchesCategory = !selectedCategory || product.category?.name === selectedCategory
-    const matchesPrice = product.gross_price <= priceRange
+    const matchesCategory = !selectedCategory || product.subgroup_name === selectedCategory;
+    const matchesPrice = product.gross_price <= priceRange;
     
-    return matchesSearch && matchesCategory && matchesPrice
-  })
+    return matchesSearch && matchesCategory && matchesPrice;
+  });
 
   const toggleProduct = (product: any) => {
-    const isSelected = state.products.some(p => p.id === product.id)
+    const isSelected = state.products.some(p => p.id === product.id);
     
     if (isSelected) {
-      dispatch({ type: 'REMOVE_PRODUCT', payload: product.id })
+      dispatch({ type: 'REMOVE_PRODUCT', payload: product.id });
     } else {
       dispatch({ 
         type: 'ADD_PRODUCT', 
         payload: {
           id: product.id,
-          name: product.name,
+          name: product.name || product.product_id,
+          product_id: product.product_id,
           description: product.short_description,
           price: product.gross_price,
-          category: product.category?.name || 'Other',
-          brand: product.brand
+          gross_price: product.gross_price,
+          category: product.subgroup_name || 'Other',
+          brand: product.brand,
+          discount_percentage: 0
         }
-      })
+      });
     }
-  }
+  };
 
-  // Updated clear function to use REMOVE_ALL_PRODUCTS instead of CLEAR_QUOTE
+  // Clear all selected products
   const handleClearAll = () => {
-    dispatch({ type: 'REMOVE_ALL_PRODUCTS' })
-  }
+    dispatch({ type: 'REMOVE_ALL_PRODUCTS' });
+  };
 
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-800"></div>
       </div>
-    )
+    );
   }
 
   return (
@@ -167,6 +181,7 @@ export default function ProductSelector() {
               <span className="text-sm text-slate-600">
                 Selected: {state.products.length}
               </span>
+              {/* Use updated function */}
               <button
                 onClick={handleClearAll}
                 className="text-sm text-primary-600 hover:text-primary-800"
@@ -178,7 +193,7 @@ export default function ProductSelector() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {filteredProducts.map((product) => {
-              const isSelected = state.products.some(p => p.id === product.id)
+              const isSelected = state.products.some(p => p.id === product.id);
               
               return (
                 <div
@@ -198,7 +213,7 @@ export default function ProductSelector() {
                     </div>
                     <div className="flex items-center space-x-2">
                       <span className="text-xs px-2 py-1 bg-slate-100 text-slate-600 rounded-full">
-                        {product.category?.name || 'Other'}
+                        {product.subgroup_name || 'Other'}
                       </span>
                       {isSelected && (
                         <div className="w-6 h-6 bg-primary-600 rounded-full flex items-center justify-center">
@@ -210,7 +225,7 @@ export default function ProductSelector() {
                     </div>
                   </div>
                   
-                  <h4 className="font-semibold text-slate-800 mb-1">{product.name}</h4>
+                  <h4 className="font-semibold text-slate-800 mb-1">{product.product_id}</h4>
                   <p className="text-sm text-slate-500 mb-2">{product.brand}</p>
                   <p className="text-sm text-slate-600 mb-3 line-clamp-2">{product.short_description}</p>
                   
@@ -221,7 +236,7 @@ export default function ProductSelector() {
                     </span>
                   </div>
                 </div>
-              )
+              );
             })}
           </div>
 
@@ -239,5 +254,5 @@ export default function ProductSelector() {
         </div>
       </div>
     </div>
-  )
+  );
 }
