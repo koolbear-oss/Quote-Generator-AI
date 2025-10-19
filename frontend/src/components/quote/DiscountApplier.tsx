@@ -104,14 +104,20 @@ export default function DiscountApplier() {
     
     let newVolumeDiscount = 0;
     
-    if (grossTotal > 50000) {
+    if (grossTotal > 200000) {
       newVolumeDiscount = 12;
+    } else if (grossTotal > 150000) {
+      newVolumeDiscount = 11;
+    } else if (grossTotal > 100000) {
+      newVolumeDiscount = 9;
+    } else if (grossTotal > 50000) {
+      newVolumeDiscount = 7;
     } else if (grossTotal > 25000) {
-      newVolumeDiscount = 8;
-    } else if (grossTotal > 10000) {
       newVolumeDiscount = 5;
-    } else if (grossTotal > 5000) {
+    } else if (grossTotal > 12500) {
       newVolumeDiscount = 3;
+    } else if (grossTotal > 5000) {
+      newVolumeDiscount = 1;
     }
     
     setVolumeDiscount(newVolumeDiscount);
