@@ -221,7 +221,9 @@ export default function DiscountApplier() {
               <div className="pt-4 border-t border-slate-200">
                 <div className="flex justify-between items-center">
                   <span className="text-slate-600">Product Discount Amount:</span>
-                  <span className="font-medium text-green-600">-${productDiscountAmount.toFixed(2)}</span>
+                  <span className="font-medium text-green-600">
+                    -€{productDiscountAmount.toFixed(2)} ({(productDiscountAmount / grossTotal * 100).toFixed(1)}%)
+                  </span>
                 </div>
               </div>
             </div>
@@ -233,7 +235,7 @@ export default function DiscountApplier() {
             <div className="space-y-4">
               <div className="flex justify-between items-center">
                 <span className="text-slate-600">Project Value:</span>
-                <span className="font-medium">${grossTotal.toFixed(2)}</span>
+                <span className="font-medium">€{grossTotal.toFixed(2)}</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-slate-600">Volume Discount Rate:</span>
@@ -242,7 +244,7 @@ export default function DiscountApplier() {
               <div className="pt-4 border-t border-slate-200">
                 <div className="flex justify-between items-center">
                   <span className="text-slate-600">Volume Discount Amount:</span>
-                  <span className="font-medium text-green-600">-${volumeDiscountAmount.toFixed(2)}</span>
+                  <span className="font-medium text-green-600">-€{volumeDiscountAmount.toFixed(2)}</span>
                 </div>
               </div>
             </div>
@@ -275,7 +277,7 @@ export default function DiscountApplier() {
                   <div className="flex justify-between items-center">
                     <span className="text-slate-600">Additional Discount Amount:</span>
                     <span className="font-medium text-green-600">
-                      -${additionalDiscountAmount.toFixed(2)}
+                      -€{additionalDiscountAmount.toFixed(2)}
                     </span>
                   </div>
                 </div>
@@ -290,18 +292,18 @@ export default function DiscountApplier() {
           <div className="space-y-4">
             <div className="flex justify-between">
               <span className="text-slate-600">Gross Total:</span>
-              <span className="font-medium">${grossTotal.toFixed(2)}</span>
+              <span className="font-medium">€{grossTotal.toFixed(2)}</span>
             </div>
             
             <div className="flex justify-between">
               <span className="text-slate-600">Total Project Discount:</span>
-              <span className="text-green-600">-${totalDiscount.toFixed(2)} ({totalDiscountPercentage.toFixed(1)}%)</span>
+              <span className="text-green-600">-€{totalDiscount.toFixed(2)} ({totalDiscountPercentage.toFixed(1)}%)</span>
             </div>
             
             <div className="pt-4 border-t border-slate-200">
               <div className="flex justify-between items-center">
                 <span className="text-lg font-semibold text-slate-800">Net Total:</span>
-                <span className="text-2xl font-bold text-primary-800">${netTotal.toFixed(2)}</span>
+                <span className="text-2xl font-bold text-primary-800">€{netTotal.toFixed(2)}</span>
               </div>
             </div>
             
