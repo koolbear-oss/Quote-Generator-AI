@@ -215,41 +215,56 @@ export default function CustomerTypesAdmin() {
   // Delete a customer group (with confirmation)
   const deleteGroup = async (group) => {
     if (!confirm(`Are you sure you want to delete ${group.name}? This will also delete all associated discounts.`)) {
-      return;
+        return;
     }
     
     setSaving(true);
     try {
-      // First delete related discount matrix entries
-      const { error: matrixError } = await supabase
+        // First check if there are customers using this group
+        const { data: customers, error: customerCheckError } = await supabase
+        .from('customers')
+        .select('id')
+        .eq('discount_group_id', group.id)
+        .limit(1);
+        
+        if (customerCheckError) throw customerCheckError;
+        
+        if (customers && customers.length > 0) {
+        alert('Cannot delete this customer type because there are customers assigned to it. You must reassign these customers to a different group first.');
+        setSaving(false);
+        return;
+        }
+
+        // First delete related discount matrix entries
+        const { error: matrixError } = await supabase
         .from('discount_matrix')
         .delete()
         .eq('customer_group_id', group.id);
-      
-      if (matrixError) throw matrixError;
-      
-      // Then delete the customer group
-      const { error: groupError } = await supabase
+        
+        if (matrixError) throw matrixError;
+        
+        // Then delete the customer group
+        const { error: groupError } = await supabase
         .from('customer_groups')
         .delete()
         .eq('id', group.id);
-      
-      if (groupError) throw groupError;
-      
-      // Update local state
-      setCustomerGroups(customerGroups.filter(g => g.id !== group.id));
-      
-      // If the deleted group was selected, clear selection
-      if (selectedGroup && selectedGroup.id === group.id) {
+        
+        if (groupError) throw groupError;
+        
+        // Update local state
+        setCustomerGroups(customerGroups.filter(g => g.id !== group.id));
+        
+        // If the deleted group was selected, clear selection
+        if (selectedGroup && selectedGroup.id === group.id) {
         setSelectedGroup(null);
-      }
-      
-      alert('Customer type deleted successfully!');
+        }
+        
+        alert('Customer type deleted successfully!');
     } catch (error) {
-      console.error('Error deleting customer group:', error);
-      alert('Failed to delete customer type. Please try again.');
+        console.error('Error deleting customer group:', error);
+        alert(`Failed to delete customer type: ${error.message}`);
     } finally {
-      setSaving(false);
+        setSaving(false);
     }
   };
   
