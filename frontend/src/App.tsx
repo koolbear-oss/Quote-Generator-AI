@@ -1,6 +1,5 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import DataImport from './pages/DataImport';
-import { Routes, Route } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import { QuoteProvider } from './context/QuoteContext'
 import Layout from './components/Layout'
@@ -10,8 +9,8 @@ import Customers from './pages/Customers'
 import Products from './pages/Products'
 import Login from './pages/Login'
 import ProtectedRoute from './components/ProtectedRoute'
-import CustomerTypesAdmin from './pages/admin/CustomerTypesAdmin';
-import './index.css'; // or whatever your CSS file is called
+import CustomerTypesAdmin from './pages/admin/CustomerTypesAdmin'
+import './index.css';
 
 function App() {
   return (
@@ -48,7 +47,13 @@ function App() {
             </ProtectedRoute>
           } />
           <Route path="/admin/import" element={<DataImport />} />
-          <Route path="/admin/customer-types" element={<CustomerTypesAdmin />} />
+          <Route path="/admin/customer-types" element={
+            <ProtectedRoute>
+              <Layout>
+                <CustomerTypesAdmin />
+              </Layout>
+            </ProtectedRoute>
+          } />
         </Routes>
       </QuoteProvider>
     </AuthProvider>
