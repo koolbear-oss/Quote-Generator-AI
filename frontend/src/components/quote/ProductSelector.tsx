@@ -1,3 +1,4 @@
+// frontend/src/components/quote/ProductSelector.tsx
 import { useEffect, useState } from 'react'
 import { useQuote } from '../../context/QuoteContext'
 import { supabase } from '../../services/supabase'
@@ -41,9 +42,9 @@ export default function ProductSelector() {
   
   const filteredProducts = products.filter(product => {
     const matchesSearch = !searchTerm || 
-      product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       product.short_description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.brand.toLowerCase().includes(searchTerm.toLowerCase())
+      product.brand?.toLowerCase().includes(searchTerm.toLowerCase())
     
     const matchesCategory = !selectedCategory || product.category?.name === selectedCategory
     const matchesPrice = product.gross_price <= priceRange
@@ -69,6 +70,11 @@ export default function ProductSelector() {
         }
       })
     }
+  }
+
+  // Updated clear function to use REMOVE_ALL_PRODUCTS instead of CLEAR_QUOTE
+  const handleClearAll = () => {
+    dispatch({ type: 'REMOVE_ALL_PRODUCTS' })
   }
 
   if (loading) {
@@ -164,7 +170,7 @@ export default function ProductSelector() {
                 Selected: {state.products.length}
               </span>
               <button
-                onClick={() => dispatch({ type: 'CLEAR_QUOTE' })}
+                onClick={handleClearAll} {/* Use updated function */}
                 className="text-sm text-primary-600 hover:text-primary-800"
               >
                 Clear All
@@ -189,7 +195,7 @@ export default function ProductSelector() {
                   <div className="flex items-start justify-between mb-3">
                     <div className="w-12 h-12 bg-slate-100 rounded-lg flex items-center justify-center">
                       <svg className="w-6 h-6 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
                       </svg>
                     </div>
                     <div className="flex items-center space-x-2">
@@ -199,7 +205,7 @@ export default function ProductSelector() {
                       {isSelected && (
                         <div className="w-6 h-6 bg-primary-600 rounded-full flex items-center justify-center">
                           <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                           </svg>
                         </div>
                       )}
@@ -224,7 +230,7 @@ export default function ProductSelector() {
           {filteredProducts.length === 0 && (
             <div className="text-center py-12">
               <svg className="mx-auto h-12 w-12 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
               </svg>
               <h3 className="mt-2 text-sm font-medium text-slate-900">No products found</h3>
               <p className="mt-1 text-sm text-slate-500">

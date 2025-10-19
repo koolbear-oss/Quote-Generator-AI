@@ -1,3 +1,4 @@
+// frontend/src/services/supabase.ts
 import { createClient } from '@supabase/supabase-js'
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://your-project.supabase.co'
@@ -24,18 +25,34 @@ export async function fetchDasSolutions() {
 }
 
 export async function fetchProductsBySolution(solutionId: string) {
+  if (!solutionId) {
+    // If no solution selected, fetch all products
+    return supabase
+      .from('products')
+      .select(`
+        *,
+        category:product_categories(id, name, das_solution_id)
+      `)
+      .eq('active', true)
+      .order('name');
+  }
+
+  // With solution selected, filter by product_categories
   return supabase
     .from('products')
-    .select(`*, category:product_categories(name)`)
-    .eq('das_solution_id', solutionId)
+    .select(`
+      *,
+      category:product_categories!inner(id, name, das_solution_id)
+    `)
+    .eq('category.das_solution_id', solutionId)
     .eq('active', true)
-    .order('name')
+    .order('name');
 }
 
 export async function fetchCustomers() {
   return supabase
     .from('customers')
-    .select(`*, discount_group:customer_groups(name)`)
+    .select(`*, discount_group:customer_groups(name, discount_percentage)`)
     .order('account')
 }
 

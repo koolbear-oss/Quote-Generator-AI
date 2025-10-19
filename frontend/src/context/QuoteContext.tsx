@@ -1,4 +1,4 @@
-// src/context/QuoteContext.tsx
+// frontend/src/context/QuoteContext.tsx
 import { createContext, useContext, useReducer, ReactNode } from 'react';
 
 // Define initial state
@@ -7,8 +7,9 @@ const initialState = {
   products: [],
   customer: null,
   projectDiscount: 0,
+  additionalDiscount: 0,
   notes: '',
-  currentStep: 1  // Add currentStep to the state
+  currentStep: 1
 };
 
 // Define action types
@@ -16,12 +17,15 @@ const ACTION_TYPES = {
   SET_DAS_SOLUTION: 'SET_DAS_SOLUTION',
   ADD_PRODUCT: 'ADD_PRODUCT',
   UPDATE_PRODUCT: 'UPDATE_PRODUCT',
+  UPDATE_PRODUCT_QUANTITY: 'UPDATE_PRODUCT_QUANTITY',
   REMOVE_PRODUCT: 'REMOVE_PRODUCT',
+  REMOVE_ALL_PRODUCTS: 'REMOVE_ALL_PRODUCTS',
   SET_CUSTOMER: 'SET_CUSTOMER',
   SET_PROJECT_DISCOUNT: 'SET_PROJECT_DISCOUNT',
+  SET_ADDITIONAL_DISCOUNT: 'SET_ADDITIONAL_DISCOUNT',
   SET_NOTES: 'SET_NOTES',
   CLEAR_QUOTE: 'CLEAR_QUOTE',
-  SET_CURRENT_STEP: 'SET_CURRENT_STEP'  // Add the new action type
+  SET_CURRENT_STEP: 'SET_CURRENT_STEP'
 };
 
 // Reducer function
@@ -62,10 +66,26 @@ function quoteReducer(state, action) {
         )
       };
       
+    case ACTION_TYPES.UPDATE_PRODUCT_QUANTITY:
+      return {
+        ...state,
+        products: state.products.map(product => 
+          product.id === action.payload.id
+            ? { ...product, quantity: action.payload.quantity }
+            : product
+        )
+      };
+      
     case ACTION_TYPES.REMOVE_PRODUCT:
       return {
         ...state,
         products: state.products.filter(product => product.id !== action.payload)
+      };
+    
+    case ACTION_TYPES.REMOVE_ALL_PRODUCTS:
+      return {
+        ...state,
+        products: []
       };
       
     case ACTION_TYPES.SET_CUSTOMER:
@@ -74,10 +94,13 @@ function quoteReducer(state, action) {
     case ACTION_TYPES.SET_PROJECT_DISCOUNT:
       return { ...state, projectDiscount: action.payload };
       
+    case ACTION_TYPES.SET_ADDITIONAL_DISCOUNT:
+      return { ...state, additionalDiscount: action.payload };
+      
     case ACTION_TYPES.SET_NOTES:
       return { ...state, notes: action.payload };
     
-    case ACTION_TYPES.SET_CURRENT_STEP:  // Add the new case
+    case ACTION_TYPES.SET_CURRENT_STEP:
       return { ...state, currentStep: action.payload };
       
     case ACTION_TYPES.CLEAR_QUOTE:
@@ -129,6 +152,9 @@ export const quoteActions = {
     type: ACTION_TYPES.REMOVE_PRODUCT,
     payload: id
   }),
+  removeAllProducts: () => ({
+    type: ACTION_TYPES.REMOVE_ALL_PRODUCTS
+  }),
   setCustomer: (customer) => ({
     type: ACTION_TYPES.SET_CUSTOMER,
     payload: customer
@@ -137,11 +163,15 @@ export const quoteActions = {
     type: ACTION_TYPES.SET_PROJECT_DISCOUNT,
     payload: discount
   }),
+  setAdditionalDiscount: (discount) => ({
+    type: ACTION_TYPES.SET_ADDITIONAL_DISCOUNT,
+    payload: discount
+  }),
   setNotes: (notes) => ({
     type: ACTION_TYPES.SET_NOTES,
     payload: notes
   }),
-  setCurrentStep: (step) => ({  // Add the new action creator
+  setCurrentStep: (step) => ({
     type: ACTION_TYPES.SET_CURRENT_STEP,
     payload: step
   }),
