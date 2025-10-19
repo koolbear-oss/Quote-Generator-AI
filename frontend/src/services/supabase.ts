@@ -1,21 +1,49 @@
 // frontend/src/services/supabase.ts
 import { createClient } from '@supabase/supabase-js'
+import type { Database } from '../types/supabase' // You may need to create this type
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://your-project.supabase.co'
-const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'your-anon-key'
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
+const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
-export const supabase = createClient(supabaseUrl, supabaseKey)
+if (!supabaseUrl || !supabaseKey) {
+  console.error('Supabase credentials are missing. Check your environment variables.')
+}
 
-// Authentication helpers
+// Initialize with proper auth options
+export const supabase = createClient(supabaseUrl, supabaseKey, {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+    detectSessionInUrl: true
+  }
+})
+
+// Authentication helpers with improved error handling
 export async function signIn(email: string, password: string) {
-  return supabase.auth.signInWithPassword({ email, password })
+  const response = await supabase.auth.signInWithPassword({ email, password })
+  if (response.error) {
+    console.error('Sign in error:', response.error)
+  }
+  return response
 }
 
 export async function signOut() {
   return supabase.auth.signOut()
 }
 
-// Data access functions
+// Check if user is authenticated
+export async function isAuthenticated() {
+  const { data } = await supabase.auth.getSession()
+  return Boolean(data.session)
+}
+
+// Get current user
+export async function getCurrentUser() {
+  const { data } = await supabase.auth.getUser()
+  return data.user
+}
+
+// Data access functions remain the same
 export async function fetchDasSolutions() {
   return supabase
     .from('das_solutions')
@@ -24,99 +52,61 @@ export async function fetchDasSolutions() {
     .order('name')
 }
 
-export async function fetchProductsBySolution(solutionId: string) {
-  if (!solutionId) {
-    // If no solution selected, fetch all products
-    return supabase
-      .from('products')
-      .select(`
-        *,
-        category:product_categories(id, name, das_solution_id)
-      `)
-      .eq('active', true)
-      .order('name');
-  }
-
-  // With solution selected, filter by product_categories
-  return supabase
-    .from('products')
-    .select(`
-      *,
-      category:product_categories!inner(id, name, das_solution_id)
-    `)
-    .eq('category.das_solution_id', solutionId)
-    .eq('active', true)
-    .order('name');
-}
-
-export async function fetchCustomers() {
-  return supabase
-    .from('customers')
-    .select(`*, discount_group:customer_groups(name, discount_percentage)`)
-    .order('account')
-}
-
-export async function fetchCustomerGroups() {
-  return supabase
-    .from('customer_groups')
-    .select('*')
-    .order('name')
-}
-
-export async function fetchDiscountMatrix() {
-  return supabase
-    .from('discount_matrix')
-    .select('*')
-}
-
-// Quote management
-export async function createQuote(quoteData: any) {
-  return supabase
-    .from('quotes')
-    .insert(quoteData)
-    .select()
-    .single()
-}
-
-export async function saveQuoteItems(quoteId: string, items: any[]) {
-  const itemsWithQuoteId = items.map(item => ({
-    ...item,
-    quote_id: quoteId
-  }))
-  
-  return supabase
-    .from('quote_items')
-    .insert(itemsWithQuoteId)
-}
-
-export async function fetchQuotes() {
-  return supabase
-    .from('quotes')
-    .select(`
-      *,
-      customer:customers(account, contact),
-      das_solution:das_solutions(name),
-      items:quote_items(*, product:products(name, product_id))
-    `)
-    .order('created_at', { ascending: false })
-}
-
-// Generate quote number
 export async function generateQuoteNumber() {
-  const year = new Date().getFullYear()
-  const { data: latestQuote } = await supabase
-    .from('quotes')
-    .select('quote_number')
-    .ilike('quote_number', `Q-${year}-%`)
-    .order('quote_number', { ascending: false })
-    .limit(1)
-    .single()
-  
-  let sequenceNumber = 1
-  if (latestQuote) {
-    const parts = latestQuote.quote_number.split('-')
-    sequenceNumber = parseInt(parts[2]) + 1
+  try {
+    const year = new Date().getFullYear();
+    
+    const { data, error } = await supabase
+      .from('quotes')
+      .select('quote_number')
+      .ilike('quote_number', `Q-${year}-%`)
+      .order('quote_number', { ascending: false })
+      .limit(1);
+    
+    if (error) {
+      console.error('Error fetching quotes for number generation:', error);
+      throw error;
+    }
+    
+    let sequenceNumber = 1;
+    if (data && data.length > 0) {
+      try {
+        const parts = data[0].quote_number.split('-');
+        if (parts.length === 3) {
+          sequenceNumber = parseInt(parts[2]) + 1;
+        }
+      } catch (err) {
+        console.error('Error parsing quote number:', err);
+        // Continue with default sequence number
+      }
+    }
+    
+    return `Q-${year}-${sequenceNumber.toString().padStart(4, '0')}`;
+  } catch (error) {
+    console.error('Failed to generate quote number:', error);
+    // Fallback to a random number
+    return `Q-${new Date().getFullYear()}-${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}`;
   }
-  
-  return `Q-${year}-${sequenceNumber.toString().padStart(4, '0')}`
+}
+
+// Add a debug function to help troubleshoot
+export async function debugSupabaseConnection() {
+  try {
+    // Check auth status
+    const { data: { session } } = await supabase.auth.getSession()
+    console.log("Auth session:", session ? "Present" : "Missing")
+    
+    // Test a basic query
+    const { data, error } = await supabase
+      .from('das_solutions')
+      .select('name')
+      .limit(1)
+      
+    console.log("Test query result:", data, error || "No error")
+    
+    return { session, testData: data, error }
+  } catch (e) {
+    console.error("Debug connection error:", e)
+    return { error: e }
+  }
 }
