@@ -114,6 +114,7 @@ export default function DiscountApplier() {
       }
     });
   }
+
   
   // Calculate volume discount based on total value
   function calculateVolumeDiscount() {

@@ -91,6 +91,7 @@ export default function ProductSelector() {
           gross_price: product.gross_price,
           category: product.subgroup_name || 'Other',
           brand: product.brand,
+          discount_group: product.discount_group, // Add this line!
           discount_percentage: 0
         }
       });
