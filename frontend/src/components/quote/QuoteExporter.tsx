@@ -5,7 +5,7 @@ import { supabase, generateQuoteNumber } from '../../services/supabase';
 import { PDFViewer, PDFDownloadLink } from '@react-pdf/renderer';
 import { QuotePDF } from './QuotePDF';
 
-export function QuoteExporter() {
+export default function QuoteExporter() {
   const { state, dispatch } = useQuote();
   const [quoteName, setQuoteName] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
