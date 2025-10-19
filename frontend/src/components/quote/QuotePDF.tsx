@@ -70,9 +70,13 @@ const styles = StyleSheet.create({
 });
 
 export function QuotePDF({ quoteName, quoteState }) {
-  // Calculate totals
+  // Safe calculation with fallbacks for missing properties
   const grossTotal = quoteState.products.reduce(
-    (sum, product) => sum + (product.gross_price * (product.quantity || 1)), 
+    (sum, product) => {
+      const unitPrice = product.gross_price || product.price || 0;
+      const quantity = product.quantity || 1;
+      return sum + (unitPrice * quantity);
+    }, 
     0
   );
   
@@ -84,9 +88,11 @@ export function QuotePDF({ quoteName, quoteState }) {
   // Calculate net total with discounts
   const netTotal = quoteState.products.reduce(
     (sum, product) => {
+      const unitPrice = product.gross_price || product.price || 0;
       const discount = calculateDiscountForProduct(product) / 100;
-      const price = product.gross_price * (1 - discount);
-      return sum + (price * (product.quantity || 1));
+      const price = unitPrice * (1 - discount);
+      const quantity = product.quantity || 1;
+      return sum + (price * quantity);
     },
     0
   );
@@ -99,7 +105,7 @@ export function QuotePDF({ quoteName, quoteState }) {
       {/* Cover Page */}
       <Page size="A4" style={styles.page}>
         <View style={styles.header}>
-          <Text style={styles.title}>Quote: {quoteName}</Text>
+          <Text style={styles.title}>Quote: {quoteName || "Untitled Quote"}</Text>
           <Text>Digital Access Solutions</Text>
         </View>
         
@@ -108,8 +114,8 @@ export function QuotePDF({ quoteName, quoteState }) {
             Experience a safer and more open world
           </Text>
           
-          <Text>DAS Solution: {quoteState.dasSolution?.name}</Text>
-          <Text>Customer: {quoteState.customer?.account}</Text>
+          <Text>DAS Solution: {quoteState.dasSolution?.name || "Not selected"}</Text>
+          <Text>Customer: {quoteState.customer?.account || "Not selected"}</Text>
           <Text>Date: {new Date().toLocaleDateString()}</Text>
         </View>
       </Page>
@@ -131,23 +137,26 @@ export function QuotePDF({ quoteName, quoteState }) {
           
           {/* Table Rows */}
           {quoteState.products.map((product, index) => {
+            // Safe access to properties with fallbacks
+            const unitPrice = product.gross_price || product.price || 0;
             const discount = calculateDiscountForProduct(product);
-            const price = product.gross_price * (1 - discount / 100);
-            const total = price * (product.quantity || 1);
+            const price = unitPrice * (1 - discount / 100);
+            const quantity = product.quantity || 1;
+            const total = price * quantity;
             
             return (
               <View key={index} style={styles.tableRow}>
                 <View style={[styles.tableCell, styles.col10]}>
-                  <Text>{product.quantity || 1}</Text>
+                  <Text>{quantity}</Text>
                 </View>
                 <View style={[styles.tableCell, styles.col15]}>
-                  <Text>{product.product_id}</Text>
+                  <Text>{product.product_id || 'N/A'}</Text>
                 </View>
                 <View style={[styles.tableCell, styles.col40]}>
-                  <Text>{product.short_description}</Text>
+                  <Text>{product.short_description || product.description || 'No description'}</Text>
                 </View>
                 <View style={[styles.tableCell, styles.col15]}>
-                  <Text>${product.gross_price.toFixed(2)}</Text>
+                  <Text>${unitPrice.toFixed(2)}</Text>
                 </View>
                 <View style={[styles.tableCell, styles.col10]}>
                   <Text>{discount}%</Text>
@@ -164,8 +173,8 @@ export function QuotePDF({ quoteName, quoteState }) {
         <View style={styles.total}>
           <Text>Gross Total: ${grossTotal.toFixed(2)}</Text>
           <Text>Net Total: ${netTotal.toFixed(2)}</Text>
-          {quoteState.projectDiscount > 0 && (
-            <Text>Project Discount: {quoteState.projectDiscount}%</Text>
+          {(quoteState.projectDiscount || 0) > 0 && (
+            <Text>Project Discount: {quoteState.projectDiscount || 0}%</Text>
           )}
           <Text style={{ fontSize: 14, marginTop: 5 }}>
             Final Total: ${finalTotal.toFixed(2)}
@@ -188,3 +197,5 @@ export function QuotePDF({ quoteName, quoteState }) {
     </Document>
   );
 }
+
+export default QuotePDF;

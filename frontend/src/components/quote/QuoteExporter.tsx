@@ -1,29 +1,36 @@
 // src/components/quote/QuoteExporter.tsx
-import { useState, useEffect } from 'react';
+import { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { useQuote } from '../../context/QuoteContext';
-import { supabase, generateQuoteNumber } from '../../services/supabase';
+import { supabase } from '../../services/supabase';
 import { PDFViewer, PDFDownloadLink } from '@react-pdf/renderer';
 import { QuotePDF } from './QuotePDF';
 
-export default function QuoteExporter() {
+export const QuoteExporter = forwardRef(function QuoteExporter(props, ref) {
   const { state, dispatch } = useQuote();
   const [quoteName, setQuoteName] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [pdfReady, setPdfReady] = useState(false);
   const [showPdfPreview, setShowPdfPreview] = useState(false);
   
-  // Calculate total amounts
+  // Calculate total amounts with fallbacks for missing properties
   const grossTotal = state.products.reduce(
-    (sum, product) => sum + (product.gross_price * (product.quantity || 1)), 
+    (sum, product) => {
+      const unitPrice = product.gross_price || product.price || 0;
+      const quantity = product.quantity || 1;
+      return sum + (unitPrice * quantity);
+    }, 
     0
   );
   
   // Function to calculate discount for a product
   const calculateDiscountForProduct = (product) => {
-    // Your existing discount calculation logic
-    // If you don't have this function, you can use a simple implementation:
     return product.discount_percentage || 0;
   };
+  
+  // Expose the completeQuote function to parent components
+  useImperativeHandle(ref, () => ({
+    completeQuote
+  }));
   
   // Debug function to check authentication status
   const checkAuthStatus = async () => {
@@ -65,6 +72,25 @@ export default function QuoteExporter() {
       
       console.log("Authenticated user ID:", session.user.id);
       
+      // Validate required fields
+      if (!state.dasSolution) {
+        alert("Please select a DAS solution");
+        setIsSubmitting(false);
+        return;
+      }
+      
+      if (!state.customer) {
+        alert("Please select a customer");
+        setIsSubmitting(false);
+        return;
+      }
+      
+      if (state.products.length === 0) {
+        alert("Please add at least one product");
+        setIsSubmitting(false);
+        return;
+      }
+      
       // Generate quote number
       const year = new Date().getFullYear();
       
@@ -103,6 +129,7 @@ export default function QuoteExporter() {
         created_by: session.user.id  // CRITICAL: This must match auth.uid()
       };
       
+      console.log("About to insert quote with auth ID:", session.user.id);
       console.log("Inserting quote with data:", quoteData);
       
       // Insert the quote
@@ -127,9 +154,12 @@ export default function QuoteExporter() {
           quote_id: newQuote.id,
           product_id: product.id,
           quantity: product.quantity || 1,
-          unit_price: product.gross_price,
+          // Ensure unit_price is never null
+          unit_price: product.gross_price || product.price || 0,
           discount_percentage: product.discount_percentage || 0
         }));
+        
+        console.log("Adding quote items:", quoteItems);
         
         const { error: itemsError } = await supabase
           .from('quote_items')
@@ -259,4 +289,7 @@ export default function QuoteExporter() {
       )}
     </div>
   );
-}
+});
+
+// Add this line at the end to support both default and named exports
+export default QuoteExporter;

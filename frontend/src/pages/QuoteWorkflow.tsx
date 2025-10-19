@@ -1,5 +1,6 @@
+// src/pages/QuoteWorkflow.tsx
 import { supabase } from '../services/supabase'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useParams } from 'react-router-dom'
 import { useQuote } from '../context/QuoteContext'
 import DasSolutionSelector from '../components/quote/DasSolutionSelector'
@@ -22,14 +23,15 @@ export default function QuoteWorkflow() {
   const { id } = useParams()
   const { state, dispatch } = useQuote()
   const [loading, setLoading] = useState(false)
-
+  const exporterRef = useRef(null)
+  
   useEffect(() => {
     if (id) {
       loadQuote(id)
     }
   }, [id])
 
-  async function loadQuote(quoteId: string) {
+  async function loadQuote(quoteId) {
     setLoading(true)
     try {
       const { data: quote } = await supabase
@@ -60,6 +62,14 @@ export default function QuoteWorkflow() {
   const handlePrevious = () => {
     if (state.currentStep > 1) {
       dispatch({ type: 'SET_CURRENT_STEP', payload: state.currentStep - 1 })
+    }
+  }
+  
+  const handleCompleteQuote = () => {
+    if (exporterRef.current) {
+      exporterRef.current.completeQuote()
+    } else {
+      console.error("Exporter reference not available")
     }
   }
 
@@ -96,7 +106,7 @@ export default function QuoteWorkflow() {
               >
                 {index + 1 < state.currentStep ? (
                   <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                   </svg>
                 ) : (
                   index + 1
@@ -120,7 +130,11 @@ export default function QuoteWorkflow() {
 
       {/* Current Step Content */}
       <div className="bg-white rounded-xl shadow-sm p-6">
-        <CurrentStepComponent />
+        {state.currentStep === STEPS.length ? (
+          <QuoteExporter ref={exporterRef} />
+        ) : (
+          <CurrentStepComponent />
+        )}
       </div>
 
       {/* Navigation */}
@@ -142,7 +156,10 @@ export default function QuoteWorkflow() {
           </button>
           
           {state.currentStep === STEPS.length ? (
-            <button className="btn-primary">
+            <button 
+              onClick={handleCompleteQuote}
+              className="btn-primary"
+            >
               Complete Quote
             </button>
           ) : (
