@@ -165,7 +165,7 @@ export default function ProductSelector() {
 
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-2">
-                Price Range: ${priceRange}
+                Price Range: €{priceRange}
               </label>
               <input
                 type="range"
@@ -176,8 +176,8 @@ export default function ProductSelector() {
                 className="w-full"
               />
               <div className="flex justify-between text-xs text-slate-500 mt-1">
-                <span>$0</span>
-                <span>$2000+</span>
+                <span>€0</span>
+                <span>€2000+</span>
               </div>
             </div>
           </div>
@@ -240,7 +240,7 @@ export default function ProductSelector() {
                   <p className="text-sm text-slate-600 mb-3 line-clamp-2">{product.short_description}</p>
                   
                   <div className="flex justify-between items-center">
-                    <span className="text-lg font-bold text-primary-800 mono">${product.gross_price}</span>
+                    <span className="text-lg font-bold text-primary-800 mono">€{product.gross_price}</span>
                     <button
                       onClick={(e) => {
                         e.stopPropagation(); // Prevent card selection
