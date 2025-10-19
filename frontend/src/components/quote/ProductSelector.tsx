@@ -10,6 +10,7 @@ export default function ProductSelector() {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('')
   const [priceRange, setPriceRange] = useState(2000)
+  const [selectedProductDetail, setSelectedProductDetail] = useState<any>(null)
 
   useEffect(() => {
     if (state.dasSolution) {
@@ -191,7 +192,6 @@ export default function ProductSelector() {
               <span className="text-sm text-slate-600">
                 Selected: {state.products.length}
               </span>
-              {/* Use updated function */}
               <button
                 onClick={handleClearAll}
                 className="text-sm text-primary-600 hover:text-primary-800"
@@ -241,9 +241,15 @@ export default function ProductSelector() {
                   
                   <div className="flex justify-between items-center">
                     <span className="text-lg font-bold text-primary-800 mono">${product.gross_price}</span>
-                    <span className="text-sm text-slate-600">
-                      {isSelected ? 'Selected' : 'Click to select'}
-                    </span>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation(); // Prevent card selection
+                        setSelectedProductDetail(product);
+                      }}
+                      className="text-sm text-primary-600 hover:text-primary-800 px-2 py-1 rounded hover:bg-primary-50"
+                    >
+                      View details
+                    </button>
                   </div>
                 </div>
               );
@@ -263,6 +269,80 @@ export default function ProductSelector() {
           )}
         </div>
       </div>
+
+      {/* Product Detail Modal */}
+      {selectedProductDetail && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg p-6 max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold">{selectedProductDetail.product_id}</h2>
+              <button 
+                onClick={() => setSelectedProductDetail(null)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 text-sm mb-4">
+                <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded">
+                  {selectedProductDetail.subgroup_name || 'Category N/A'}
+                </span>
+                <span className="px-2 py-1 bg-gray-100 text-gray-800 rounded">
+                  {selectedProductDetail.sub_brand}
+                </span>
+              </div>
+              
+              <div className="bg-slate-50 p-3 rounded-lg text-sm">
+                <p className="text-slate-500 mb-1">Brand</p>
+                <p className="font-medium">{selectedProductDetail.brand}</p>
+              </div>
+              
+              <div className="bg-slate-50 p-4 rounded-lg">
+                <p className="text-slate-500 mb-2 text-sm">Description</p>
+                <p className="text-slate-800">{selectedProductDetail.short_description}</p>
+                
+                {selectedProductDetail.long_description && selectedProductDetail.long_description !== selectedProductDetail.short_description && (
+                  <div className="mt-4 pt-4 border-t border-slate-200">
+                    <p className="text-slate-500 mb-2 text-sm">Technical Details</p>
+                    <p className="text-slate-800">{selectedProductDetail.long_description}</p>
+                  </div>
+                )}
+              </div>
+              
+              <div className="bg-slate-50 p-3 rounded-lg">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <p className="text-slate-500 text-sm">Price</p>
+                    <p className="text-2xl font-bold text-primary-800">
+                      ${selectedProductDetail.gross_price}
+                    </p>
+                  </div>
+                  
+                  <button 
+                    onClick={() => {
+                      toggleProduct(selectedProductDetail);
+                      setSelectedProductDetail(null);
+                    }}
+                    className={`px-4 py-2 rounded-lg ${
+                      state.products.some(p => p.id === selectedProductDetail.id)
+                        ? 'bg-red-600 text-white hover:bg-red-700'
+                        : 'bg-primary-600 text-white hover:bg-primary-700'
+                    }`}
+                  >
+                    {state.products.some(p => p.id === selectedProductDetail.id) 
+                      ? 'Remove from quote' 
+                      : 'Add to quote'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
