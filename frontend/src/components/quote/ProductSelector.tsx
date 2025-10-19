@@ -52,10 +52,20 @@ export default function ProductSelector() {
   const categories = [...new Set(products.map(p => p.subgroup_name).filter(Boolean))].sort();
   
   const filteredProducts = products.filter(product => {
-    const matchesSearch = !searchTerm || 
-      product.product_id?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.short_description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.brand?.toLowerCase().includes(searchTerm.toLowerCase());
+    // Multi-word search - split search term into words
+    const searchWords = searchTerm.toLowerCase().split(/\s+/).filter(word => word.length > 0);
+    
+    // If no search words, don't filter by search
+    const matchesSearch = searchWords.length === 0 || searchWords.every(word => {
+      // Check if this word appears in any of the searchable fields
+      return (
+        (product.product_id?.toLowerCase().includes(word) || false) ||
+        (product.short_description?.toLowerCase().includes(word) || false) ||
+        (product.long_description?.toLowerCase().includes(word) || false) ||
+        (product.brand?.toLowerCase().includes(word) || false) ||
+        (product.sub_brand?.toLowerCase().includes(word) || false)
+      );
+    });
     
     const matchesCategory = !selectedCategory || product.subgroup_name === selectedCategory;
     const matchesPrice = product.gross_price <= priceRange;
