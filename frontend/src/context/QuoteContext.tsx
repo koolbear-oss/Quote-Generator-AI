@@ -1,4 +1,4 @@
-// src/context/QuoteContext.jsx
+// src/context/QuoteContext.tsx
 import { createContext, useContext, useReducer, ReactNode } from 'react';
 
 // Define initial state
@@ -7,7 +7,8 @@ const initialState = {
   products: [],
   customer: null,
   projectDiscount: 0,
-  notes: ''
+  notes: '',
+  currentStep: 1  // Add currentStep to the state
 };
 
 // Define action types
@@ -19,7 +20,8 @@ const ACTION_TYPES = {
   SET_CUSTOMER: 'SET_CUSTOMER',
   SET_PROJECT_DISCOUNT: 'SET_PROJECT_DISCOUNT',
   SET_NOTES: 'SET_NOTES',
-  CLEAR_QUOTE: 'CLEAR_QUOTE'
+  CLEAR_QUOTE: 'CLEAR_QUOTE',
+  SET_CURRENT_STEP: 'SET_CURRENT_STEP'  // Add the new action type
 };
 
 // Reducer function
@@ -74,6 +76,9 @@ function quoteReducer(state, action) {
       
     case ACTION_TYPES.SET_NOTES:
       return { ...state, notes: action.payload };
+    
+    case ACTION_TYPES.SET_CURRENT_STEP:  // Add the new case
+      return { ...state, currentStep: action.payload };
       
     case ACTION_TYPES.CLEAR_QUOTE:
       return initialState;
@@ -135,6 +140,10 @@ export const quoteActions = {
   setNotes: (notes) => ({
     type: ACTION_TYPES.SET_NOTES,
     payload: notes
+  }),
+  setCurrentStep: (step) => ({  // Add the new action creator
+    type: ACTION_TYPES.SET_CURRENT_STEP,
+    payload: step
   }),
   clearQuote: () => ({
     type: ACTION_TYPES.CLEAR_QUOTE

@@ -1,6 +1,25 @@
-// src/hooks/useDiscountCalculation.js
+// src/hooks/useDiscountCalculation.ts
 import { useCallback } from 'react';
 import { supabase } from '../services/supabase';
+
+// You can add these type definitions if helpful
+interface Product {
+  discount_group?: string;
+  gross_price?: number;
+  [key: string]: any;
+}
+
+interface Customer {
+  discount_group_id?: string;
+  [key: string]: any;
+}
+
+interface DiscountResult {
+  unitPrice: number;
+  discountPercentage: number;
+  discountAmount: number;
+  netPrice: number;
+}
 
 export function useDiscountCalculation() {
   // Function to fetch the discount matrix
@@ -18,7 +37,11 @@ export function useDiscountCalculation() {
   }, []);
 
   // Main calculation function
-  const calculateItemDiscount = useCallback(async (product, customer, quantity) => {
+  const calculateItemDiscount = useCallback(async (
+    product: Product, 
+    customer: Customer, 
+    quantity: number
+  ): Promise<DiscountResult> => {
     if (!product || !customer || !quantity) {
       return { 
         unitPrice: 0, 
@@ -35,28 +58,4 @@ export function useDiscountCalculation() {
       // Fetch the discount matrix
       const discountMatrix = await fetchDiscountMatrix();
       
-      // Find the matching discount
-      const discountEntry = discountMatrix.find(entry => 
-        entry.product_discount_group === product.discount_group && 
-        entry.customer_group_id === customer.discount_group_id
-      );
-      
-      if (discountEntry) {
-        discountPercentage = discountEntry.discount_percentage || 0;
-      }
-    }
-    
-    const unitPrice = product.gross_price || 0;
-    const discountAmount = (unitPrice * quantity * discountPercentage) / 100;
-    const netPrice = unitPrice * quantity * (1 - discountPercentage / 100);
-    
-    return {
-      unitPrice,
-      discountPercentage,
-      discountAmount,
-      netPrice
-    };
-  }, [fetchDiscountMatrix]);
-  
-  return { calculateItemDiscount };
-}
+      // Find t
