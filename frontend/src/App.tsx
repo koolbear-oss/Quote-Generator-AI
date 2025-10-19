@@ -1,3 +1,5 @@
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import DataImport from './pages/DataImport';
 import { Routes, Route } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import { QuoteProvider } from './context/QuoteContext'
@@ -44,6 +46,7 @@ function App() {
               </Layout>
             </ProtectedRoute>
           } />
+          <Route path="/admin/import" element={<DataImport />} />
         </Routes>
       </QuoteProvider>
     </AuthProvider>

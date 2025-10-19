@@ -1,0 +1,20 @@
+customerId;account;contact;discountGroup;accountType
+1001;SecureTech Installation Services;John Smith;P25 - FAC MAN;Facility Manager
+1002;Access Pro Installers;Maria Garcia;P34 - INSTALL;Install Partner
+1003;Digital Security Solutions;Peter Johnson;P34 - INSTALL;Install Partner
+1004;Smart Access Belgium;Sophie Dubois;P34 - INSTALL;Install Partner
+1005;Professional Lock Systems;Marc Janssen;P40 - INSTALL;Install Partner
+2001;Integrated Security Systems NV;David Williams;P43 - SYS INT;System Integrator
+2002;TechFlow Integration;Anna Larsson;P43 - SYS INT;System Integrator
+2003;Advanced Access Control;Robert Chen;P43 - SYS INT;System Integrator
+2004;Complete Security Partners;Lisa Anderson;P43 - SYS INT;System Integrator
+2005;Enterprise Access Solutions;Thomas Mueller;P43 - SYS INT;System Integrator
+3001;University of Brussels;Dr. Sarah Wilson;P28 - PEU;Direct
+3002;Belgian National Bank;François Moreau;P28 - PEU;Direct
+3003;Ghent Medical Center;Dr. Emma Van Der Berg;P28 - PEU;Direct
+3004;Antwerp Port Authority;Jan Peeters;P28 - PEU;Direct
+3005;Federal Government Building;Marie Dupont;P38 - FRAME;Framework Contract
+4001;Elite Security Partners BVBA;Alexander De Vries;P25 - FAC MAN;Facility Manager
+4002;Premier Access Solutions;Catherine Laurent;P25 - FAC MAN;Facility Manager
+4003;Apex Integration Services;Michael Van Houten;P25 - FAC MAN;Facility Manager
+4004;Supreme Security Systems;Elena Rossi;P25 - FAC MAN;Facility Manager

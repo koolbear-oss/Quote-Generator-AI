@@ -6,3 +6,7 @@
     "build": "cd frontend && npm run build"
   }
 }
+
+"scripts": {
+  "import-data": "node --experimental-modules scripts/import-data.js"
+}

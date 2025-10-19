@@ -1,0 +1,25 @@
+﻿productId;brand;subBrand;subGroup;subGroupName;shortDescription;grossPrice;longDescription;discountGroup
+SA-SW-001;ASSA ABLOY;SMARTair;10.1;Management Kit;SMARTair Standalone;299.99;Basic standalone software setup;SMART SOFT
+SA-SW-002;ASSA ABLOY;SMARTair;10.1;Management Kit;SMARTair Update On Card;499.99;Update on card software with offline capability;SMART SOFT
+SA-SW-003;ASSA ABLOY;SMARTair;10.1;Management Kit;SMARTair UOC + Openow;799.99;Update on card with mobile integration;SMART SOFT
+SA-SW-004;ASSA ABLOY;SMARTair;10.1;Management Kit;SMARTair Wireless Online + Openow;1299.99;Full wireless online system with mobile;SMART SOFT
+SA-CR-001;ASSA ABLOY;SMARTair;10.2;Credential;RFID Badge Standard;3.99;Standard RFID access badge;SMART CRED
+SA-CR-002;ASSA ABLOY;SMARTair;10.2;Credential;RFID Tag Keychain;2.99;Compact RFID keychain tag;SMART CRED
+SA-CR-003;ASSA ABLOY;SMARTair;10.2;Credential;Mobile Credential License;15.99;Openow mobile credential license;SMART CRED
+SA-RD-001;ASSA ABLOY;SMARTair;10.3;Reader;Wall Reader Basic;189.99;Basic wall-mounted reader;SMART HW
+SA-RD-002;ASSA ABLOY;SMARTair;10.3;Reader;Wall Reader with PIN;249.99;Wall reader with PIN pad;SMART HW
+SA-RD-003;ASSA ABLOY;SMARTair;10.3;Reader;Elevator Reader;299.99;Specialized elevator access reader;SMART HW
+AP-ES-001;ASSA ABLOY;Aperio;10.4;Escutcheon;Aperio E100 Escutchion;189.99;Standard battery-powered escutchion;APERIO
+AP-ES-002;ASSA ABLOY;Aperio;10.4;Escutcheon;Aperio E200 Weather Resistant;249.99;IP65 rated outdoor escutchion;APERIO
+AP-KC-001;ASSA ABLOY;Aperio;10.5;Knob Cylinder;Aperio K100 Knob Cylinder;299.99;Wireless knob cylinder;APERIO
+AP-KC-002;ASSA ABLOY;Aperio;10.5;Knob Cylinder;Aperio K200 High Security;399.99;High-security knob cylinder;APERIO
+AC-CT-001;ASSA ABLOY;Access;10.6;Door Controller;Access P100 Controller;599.99;Single door controller;ACCESS HW
+AC-CT-002;ASSA ABLOY;Access;10.6;Door Controller;Access P400 Controller;1299.99;4-door controller with TCP/IP;ACCESS HW
+AC-RD-001;ASSA ABLOY;Access;10.3;Reader;Access R100 Reader;149.99;Standard card reader;ACCESS HW
+AC-RD-002;ASSA ABLOY;Access;10.3;Reader;Access R200 PIN Reader;199.99;Card reader with PIN pad;ACCESS HW
+EQ-CY-001;ASSA ABLOY;eCLIQ;10.7;Cylinder;eCLIQ Euro Profile Cylinder;189.99;Standard European profile cylinder;CLIQ HW
+EQ-CY-002;ASSA ABLOY;eCLIQ;10.7;Cylinder;eCLIQ Furniture Cylinder;159.99;Furniture and cabinet cylinder;CLIQ HW
+EQ-CY-003;ASSA ABLOY;eCLIQ;10.7;Cylinder;eCLIQ Safe Cylinder;299.99;High-security safe cylinder;CLIQ HW
+EQ-KY-001;ASSA ABLOY;eCLIQ;10.8;Key;eCLIQ Basic Key;45.99;Basic electronic key;CLIQ HW
+EQ-KY-002;ASSA ABLOY;eCLIQ;10.8;Key;eCLIQ Professional Key;89.99;Professional electronic key with display;CLIQ HW
+EQ-KY-003;ASSA ABLOY;eCLIQ;10.9;Programming Device;eCLIQ Programming Key;199.99;Programming and configuration key;CLIQ HW
