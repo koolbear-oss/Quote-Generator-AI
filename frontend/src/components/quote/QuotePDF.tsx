@@ -110,10 +110,7 @@ export function QuotePDF({ quoteName, quoteState }) {
         </View>
         
         <View style={styles.section}>
-          <Text style={styles.subtitle}>
-            Experience a safer and more open world
-          </Text>
-          
+          <Text style={styles.subtitle}>Experience a safer and more open world</Text>
           <Text>DAS Solution: {quoteState.dasSolution?.name || "Not selected"}</Text>
           <Text>Customer: {quoteState.customer?.account || "Not selected"}</Text>
           <Text>Date: {new Date().toLocaleDateString()}</Text>
@@ -173,21 +170,19 @@ export function QuotePDF({ quoteName, quoteState }) {
         <View style={styles.total}>
           <Text>Gross Total: ${grossTotal.toFixed(2)}</Text>
           <Text>Net Total: ${netTotal.toFixed(2)}</Text>
-          {(quoteState.projectDiscount || 0) > 0 && (
-            <Text>Project Discount: {quoteState.projectDiscount || 0}%</Text>
-          )}
-          <Text style={{ fontSize: 14, marginTop: 5 }}>
-            Final Total: ${finalTotal.toFixed(2)}
-          </Text>
+          {(quoteState.projectDiscount || 0) > 0 ? (
+            <Text>Project Discount: {quoteState.projectDiscount}%</Text>
+          ) : null}
+          <Text style={{ fontSize: 14, marginTop: 5 }}>Final Total: ${finalTotal.toFixed(2)}</Text>
         </View>
         
         {/* Notes */}
-        {quoteState.notes && (
+        {quoteState.notes ? (
           <View style={styles.section}>
             <Text style={{ fontWeight: 'bold', marginBottom: 5 }}>Notes:</Text>
             <Text>{quoteState.notes}</Text>
           </View>
-        )}
+        ) : null}
         
         <View style={styles.footer}>
           <Text>Digital Access Solutions Quote {new Date().toISOString().split('T')[0]}</Text>
