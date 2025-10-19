@@ -93,7 +93,6 @@ export default function ProductSelector() {
       </div>
 
       <div className="flex flex-col lg:flex-row gap-6">
-        {/* Filters Sidebar */}
         <div className="lg:w-80 bg-slate-50 rounded-xl p-6">
           <h3 className="font-semibold text-slate-800 mb-4">Filter Products</h3>
           
@@ -159,7 +158,6 @@ export default function ProductSelector() {
           </div>
         </div>
 
-        {/* Product Grid */}
         <div className="flex-1">
           <div className="flex justify-between items-center mb-6">
             <h3 className="text-lg font-semibold text-slate-800">
@@ -170,7 +168,6 @@ export default function ProductSelector() {
                 Selected: {state.products.length}
               </span>
               <button
-                {/* Use updated function */}
                 onClick={handleClearAll}
                 className="text-sm text-primary-600 hover:text-primary-800"
               >
