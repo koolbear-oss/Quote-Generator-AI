@@ -8,6 +8,7 @@ const initialState = {
   customer: null,
   projectDiscount: 0,
   additionalDiscount: 0,
+  volumeDiscount: 0, // Added for volume-based discounts
   notes: '',
   currentStep: 1
 };
@@ -18,10 +19,12 @@ const ACTION_TYPES = {
   ADD_PRODUCT: 'ADD_PRODUCT',
   UPDATE_PRODUCT: 'UPDATE_PRODUCT',
   UPDATE_PRODUCT_QUANTITY: 'UPDATE_PRODUCT_QUANTITY',
+  UPDATE_PRODUCT_DISCOUNT: 'UPDATE_PRODUCT_DISCOUNT', // New action for product-specific discounts
   REMOVE_PRODUCT: 'REMOVE_PRODUCT',
   REMOVE_ALL_PRODUCTS: 'REMOVE_ALL_PRODUCTS',
   SET_CUSTOMER: 'SET_CUSTOMER',
   SET_PROJECT_DISCOUNT: 'SET_PROJECT_DISCOUNT',
+  SET_VOLUME_DISCOUNT: 'SET_VOLUME_DISCOUNT', // New action for volume discount
   SET_ADDITIONAL_DISCOUNT: 'SET_ADDITIONAL_DISCOUNT',
   SET_NOTES: 'SET_NOTES',
   CLEAR_QUOTE: 'CLEAR_QUOTE',
@@ -76,6 +79,16 @@ function quoteReducer(state, action) {
         )
       };
       
+    case ACTION_TYPES.UPDATE_PRODUCT_DISCOUNT:
+      return {
+        ...state,
+        products: state.products.map(product => 
+          product.id === action.payload.id
+            ? { ...product, discount_percentage: action.payload.discount_percentage }
+            : product
+        )
+      };
+      
     case ACTION_TYPES.REMOVE_PRODUCT:
       return {
         ...state,
@@ -93,6 +106,9 @@ function quoteReducer(state, action) {
       
     case ACTION_TYPES.SET_PROJECT_DISCOUNT:
       return { ...state, projectDiscount: action.payload };
+      
+    case ACTION_TYPES.SET_VOLUME_DISCOUNT:
+      return { ...state, volumeDiscount: action.payload };
       
     case ACTION_TYPES.SET_ADDITIONAL_DISCOUNT:
       return { ...state, additionalDiscount: action.payload };
@@ -148,6 +164,14 @@ export const quoteActions = {
     type: ACTION_TYPES.UPDATE_PRODUCT,
     payload: { id, quantity }
   }),
+  updateProductQuantity: (id, quantity) => ({
+    type: ACTION_TYPES.UPDATE_PRODUCT_QUANTITY,
+    payload: { id, quantity }
+  }),
+  updateProductDiscount: (id, discount_percentage) => ({
+    type: ACTION_TYPES.UPDATE_PRODUCT_DISCOUNT,
+    payload: { id, discount_percentage }
+  }),
   removeProduct: (id) => ({
     type: ACTION_TYPES.REMOVE_PRODUCT,
     payload: id
@@ -161,6 +185,10 @@ export const quoteActions = {
   }),
   setProjectDiscount: (discount) => ({
     type: ACTION_TYPES.SET_PROJECT_DISCOUNT,
+    payload: discount
+  }),
+  setVolumeDiscount: (discount) => ({
+    type: ACTION_TYPES.SET_VOLUME_DISCOUNT,
     payload: discount
   }),
   setAdditionalDiscount: (discount) => ({
