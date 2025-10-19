@@ -72,9 +72,9 @@ export default function QuoteWorkflow() {
   }
 
   return (
-    <div className="space-y-8">
-      {/* Progress Indicator */}
-      <div className="bg-white rounded-xl shadow-sm p-6">
+      <div className="space-y-8" style={{backgroundColor: '#f5f7f9', padding: '20px', maxWidth: '1200px', margin: '0 auto', border: '2px solid blue'}}>
+        {/* Progress Indicator */}
+        <div className="bg-white rounded-xl shadow-sm p-6" style={{border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.1)'}}>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-slate-800">Quote Progress</h2>
           <span className="text-sm text-slate-500">
